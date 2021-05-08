@@ -17,7 +17,7 @@
                     "name": "Jump",
                     "type": "PassThrough",
                     "id": "348b05f9-7a7a-4f1b-85a7-b4e4aadf06b3",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "Key",
                     "processors": "",
                     "interactions": ""
                 },
@@ -33,6 +33,14 @@
                     "name": "Grab",
                     "type": "Button",
                     "id": "3b1e94dd-cf20-4b4d-9d08-ee55d65aac37",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "VerticalMovement",
+                    "type": "PassThrough",
+                    "id": "17c98756-7051-4ed0-bd41-ca3898161774",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -104,6 +112,39 @@
                     "action": "Grab",
                     "isComposite": false,
                     "isPartOfComposite": false
+                },
+                {
+                    "name": "Vertical",
+                    "id": "c5cd9caf-405f-4885-b6e0-87a85ad77d34",
+                    "path": "1DAxis",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalMovement",
+                    "isComposite": true,
+                    "isPartOfComposite": false
+                },
+                {
+                    "name": "negative",
+                    "id": "a23a25eb-97e2-43d2-ad57-e06151ecea5b",
+                    "path": "<Keyboard>/downArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalMovement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
+                },
+                {
+                    "name": "positive",
+                    "id": "abfa1363-b386-4ff3-adb8-5aef2749544d",
+                    "path": "<Keyboard>/upArrow",
+                    "interactions": "",
+                    "processors": "",
+                    "groups": "",
+                    "action": "VerticalMovement",
+                    "isComposite": false,
+                    "isPartOfComposite": true
                 }
             ]
         }

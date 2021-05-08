@@ -30,7 +30,7 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                     ""name"": ""Jump"",
                     ""type"": ""PassThrough"",
                     ""id"": ""348b05f9-7a7a-4f1b-85a7-b4e4aadf06b3"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": ""Key"",
                     ""processors"": """",
                     ""interactions"": """"
                 },
@@ -46,6 +46,14 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                     ""name"": ""Grab"",
                     ""type"": ""Button"",
                     ""id"": ""3b1e94dd-cf20-4b4d-9d08-ee55d65aac37"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""VerticalMovement"",
+                    ""type"": ""PassThrough"",
+                    ""id"": ""17c98756-7051-4ed0-bd41-ca3898161774"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -117,6 +125,39 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                     ""action"": ""Grab"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""Vertical"",
+                    ""id"": ""c5cd9caf-405f-4885-b6e0-87a85ad77d34"",
+                    ""path"": ""1DAxis"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""VerticalMovement"",
+                    ""isComposite"": true,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": ""negative"",
+                    ""id"": ""a23a25eb-97e2-43d2-ad57-e06151ecea5b"",
+                    ""path"": ""<Keyboard>/downArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""VerticalMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": ""positive"",
+                    ""id"": ""abfa1363-b386-4ff3-adb8-5aef2749544d"",
+                    ""path"": ""<Keyboard>/upArrow"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""VerticalMovement"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": true
                 }
             ]
         }
@@ -129,6 +170,7 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
         m_General_Jump = m_General.FindAction("Jump", throwIfNotFound: true);
         m_General_Dash = m_General.FindAction("Dash", throwIfNotFound: true);
         m_General_Grab = m_General.FindAction("Grab", throwIfNotFound: true);
+        m_General_VerticalMovement = m_General.FindAction("VerticalMovement", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -182,6 +224,7 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
     private readonly InputAction m_General_Jump;
     private readonly InputAction m_General_Dash;
     private readonly InputAction m_General_Grab;
+    private readonly InputAction m_General_VerticalMovement;
     public struct GeneralActions
     {
         private @PlayerMovementAction m_Wrapper;
@@ -190,6 +233,7 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
         public InputAction @Jump => m_Wrapper.m_General_Jump;
         public InputAction @Dash => m_Wrapper.m_General_Dash;
         public InputAction @Grab => m_Wrapper.m_General_Grab;
+        public InputAction @VerticalMovement => m_Wrapper.m_General_VerticalMovement;
         public InputActionMap Get() { return m_Wrapper.m_General; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -211,6 +255,9 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 @Grab.started -= m_Wrapper.m_GeneralActionsCallbackInterface.OnGrab;
                 @Grab.performed -= m_Wrapper.m_GeneralActionsCallbackInterface.OnGrab;
                 @Grab.canceled -= m_Wrapper.m_GeneralActionsCallbackInterface.OnGrab;
+                @VerticalMovement.started -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
+                @VerticalMovement.performed -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
+                @VerticalMovement.canceled -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
             }
             m_Wrapper.m_GeneralActionsCallbackInterface = instance;
             if (instance != null)
@@ -227,6 +274,9 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 @Grab.started += instance.OnGrab;
                 @Grab.performed += instance.OnGrab;
                 @Grab.canceled += instance.OnGrab;
+                @VerticalMovement.started += instance.OnVerticalMovement;
+                @VerticalMovement.performed += instance.OnVerticalMovement;
+                @VerticalMovement.canceled += instance.OnVerticalMovement;
             }
         }
     }
@@ -237,5 +287,6 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
         void OnJump(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
         void OnGrab(InputAction.CallbackContext context);
+        void OnVerticalMovement(InputAction.CallbackContext context);
     }
 }

@@ -18,16 +18,22 @@ public class DebugMenu : MonoBehaviour
     public Toggle timeDeltaTimeToggle;
     public InputField horizontalSpeedInputField, jumpForceInputField, localGravityInputField;
 
-    private void Start() {
+    private void Start()
+    {
         //Initially sets the values from the character controller script
         CharacterController.eExposeValues += SetValuesInDebugger;
+
+        //For shitty toggles
+        timeDeltaTimeToggle.onValueChanged.AddListener(delegate { SetTimeDeltaTime(timeDeltaTimeToggle); });
     }
 
-    private void OnDisable() {
+    private void OnDisable()
+    {
         CharacterController.eExposeValues -= SetValuesInDebugger;
     }
 
-    private void SetValuesInDebugger(bool timeDeltaTime, float horizontalSpeed, float jumpForce, float localGravity){
+    private void SetValuesInDebugger(bool timeDeltaTime, float horizontalSpeed, float jumpForce, float localGravity)
+    {
 
         //Set the variables
         currentTimeDeltaTime = timeDeltaTime;
@@ -42,32 +48,37 @@ public class DebugMenu : MonoBehaviour
         localGravityInputField.text = currentLocalGravity.ToString();
     }
 
-    public void ToggleDebugMenu(){
-        
-        if (debugMenu.activeInHierarchy == false) 
+    public void ToggleDebugMenu()
+    {
+
+        if (debugMenu.activeInHierarchy == false)
             debugMenu.SetActive(true);
         else
             debugMenu.SetActive(false);
     }
 
-    public void SetTimeDeltaTime(Toggle toggle){
+    public void SetTimeDeltaTime(Toggle toggle)
+    {
         currentTimeDeltaTime = toggle.isOn;
-        Debug.Log(toggle.isOn);
     }
 
-    public void SetHorizontalSpeed(InputField field){
-        currentHorizontalSpeed = int.Parse(field.text);
+    public void SetHorizontalSpeed(InputField field)
+    {
+        currentHorizontalSpeed = float.Parse(field.text);
     }
 
-    public void SetJumpForce(InputField field){
-        currentJumpForce = int.Parse(field.text);
+    public void SetJumpForce(InputField field)
+    {
+        currentJumpForce = float.Parse(field.text);
     }
 
-    public void SetLocalGravity(InputField field){
-        currentLocalGravity = int.Parse(field.text);
+    public void SetLocalGravity(InputField field)
+    {
+        currentLocalGravity = float.Parse(field.text);
     }
 
-    public void SetValues(){
+    public void SetValues()
+    {
 
         //Set the values
         if (eSetDebugValues != null)
