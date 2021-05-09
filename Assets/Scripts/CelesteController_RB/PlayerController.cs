@@ -125,10 +125,19 @@ public class PlayerController : MonoBehaviour
 
     private void JumpMechanism()
     {
-
-        if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame)
+        if (currentMovementState == MovementState.SIMPLE)
         {
-            thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+            if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame)
+            {
+                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+            }
+        }
+        else if (currentMovementState == MovementState.GRAB)
+        {
+            if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
+            {
+                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+            }
         }
 
     }
@@ -257,6 +266,7 @@ public class PlayerController : MonoBehaviour
             if (Keyboard.current.xKey.isPressed)
             {
                 isControllable = false;
+                isGrabbing = true;
                 overallGravityModifier = 0;
                 currentMovementState = MovementState.GRAB;
                 thisBody.velocity = new Vector2(thisBody.velocity.x, inputY * moveSpeed * grabMovementModifier);
@@ -264,6 +274,7 @@ public class PlayerController : MonoBehaviour
             else
             {
                 isControllable = true;
+                isGrabbing = false;
                 overallGravityModifier = 1;
                 currentMovementState = MovementState.SIMPLE;
             }
@@ -271,6 +282,7 @@ public class PlayerController : MonoBehaviour
         else
         {
             isControllable = true;
+            isGrabbing = false;
             overallGravityModifier = 1;
             currentMovementState = MovementState.SIMPLE;
         }
