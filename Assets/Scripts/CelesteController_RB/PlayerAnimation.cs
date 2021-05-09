@@ -18,6 +18,7 @@ public class PlayerAnimation : MonoBehaviour
         SetIdleMoveAnimation();
         SetVerticalMovementAndGroundCheckValues();
         SetJumpAnimation();
+        RotatePlayer();
     }
 
     private void SetIdleMoveAnimation()
@@ -43,8 +44,21 @@ public class PlayerAnimation : MonoBehaviour
         animator.SetInteger("VerticalMovement", verticalMovement);
     }
 
+    public void RotatePlayer(bool shouldRotateLeft)
+    {
+        if (shouldRotateLeft) playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
+        else playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+    }
+
     public void RotatePlayer()
     {
-
+        if (this.playerController.inputX > 0)
+        {
+            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (playerController.inputX < 0)
+        {
+            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
     }
 }

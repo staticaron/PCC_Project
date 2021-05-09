@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -37,19 +38,29 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform foot;
     [SerializeField] private Vector2 footSize;
     [SerializeField] private LayerMask groundMask;
-    [SerializeField] private bool footVisualization;
     [SerializeField] private float coyoteTime;
     [SerializeField] private float groundCheckTimer;
     [SerializeField] private bool coyoteEnabled;
     [HideInInspector] public bool groundCheckRealtime;
+    [SerializeField] private bool footVisualization;
 
     [Header("Dash Values")]
     [SerializeField] private float dashForce;
     private Vector2 dashVector;
     [SerializeField] private float dashRecoverTime;
     private bool wasDashed;
-    [SerializeField] private float dashTimeOffset;//I know its a poor name :<
+    [SerializeField] private float dashTimeOffset;
     private float dashTimer;
+    [SerializeField] private bool canDash;
+
+    [Header("Grab Values")]
+    [SerializeField] private float grabMovementModifier;
+    [SerializeField] private bool isGrabbing;
+    [SerializeField] private bool canGrab;
+    [SerializeField] private Transform leftHand, rightHand;
+    [SerializeField] private Vector2 handSize;
+    [SerializeField] private LayerMask grabMask;
+    [SerializeField] private bool handVisualization;
 
     private void Awake()
     {
@@ -73,7 +84,6 @@ public class PlayerController : MonoBehaviour
         SetValues();
 
         GrabInput();
-
     }
 
     private void FixedUpdate()
@@ -86,8 +96,11 @@ public class PlayerController : MonoBehaviour
 
         RemoveFloatyness();
 
+        SetDash(); //No value mean set the dash according to the groundCheckRealtime
+
         Dash();
 
+        GrabMechanism();
     }
 
 
@@ -112,10 +125,12 @@ public class PlayerController : MonoBehaviour
 
     private void JumpMechanism()
     {
+
         if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame)
         {
             thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
         }
+
     }
 
     private void RemoveFloatyness()
@@ -168,10 +183,24 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Can be called from another script (crystal) to replenish the dash
+    public void SetDash(int value = -1)
+    {
+        if (value == -1)
+        {
+            if (groundCheckRealtime == true) canDash = true;
+        }
+        else
+        {
+            if (value == 0) canDash = false;
+            else if (value == 1) canDash = true;
+        }
+    }
+
     private void Dash()
     {
-
-        if (Keyboard.current.zKey.wasPressedThisFrame)
+        //Take Dash Input
+        if (Keyboard.current.zKey.wasPressedThisFrame && canDash == true)
         {
             dashTimer = dashTimeOffset;
         }
@@ -180,6 +209,7 @@ public class PlayerController : MonoBehaviour
             dashTimer -= Time.deltaTime;
         }
 
+        //Apply dash according to the input
         if (dashTimer > 0 && currentMovementState != MovementState.DASH)
         {
             if (dashVector == Vector2.zero) return;
@@ -204,6 +234,7 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(DashRecover(dashRecoverTime));
 
             currentMovementState = MovementState.DASH;
+            canDash = false;
         }
     }
 
@@ -217,8 +248,38 @@ public class PlayerController : MonoBehaviour
         currentMovementState = MovementState.SIMPLE;
     }
 
+    private void GrabMechanism()
+    {
+        canGrab = Physics2D.OverlapBox(leftHand.position, handSize, 0, grabMask) || Physics2D.OverlapBox(rightHand.position, handSize, 0, grabMask);
+
+        if (canGrab)
+        {
+            if (Keyboard.current.xKey.isPressed)
+            {
+                isControllable = false;
+                overallGravityModifier = 0;
+                currentMovementState = MovementState.GRAB;
+                thisBody.velocity = new Vector2(thisBody.velocity.x, inputY * moveSpeed * grabMovementModifier);
+            }
+            else
+            {
+                isControllable = true;
+                overallGravityModifier = 1;
+                currentMovementState = MovementState.SIMPLE;
+            }
+        }
+        else
+        {
+            isControllable = true;
+            overallGravityModifier = 1;
+            currentMovementState = MovementState.SIMPLE;
+        }
+    }
+
     private void OnDrawGizmos()
     {
         if (footVisualization == true) Gizmos.DrawCube(foot.position, footSize);
+        if (handVisualization == true) Gizmos.DrawCube(leftHand.position, handSize);
+        if (handVisualization == true) Gizmos.DrawCube(rightHand.position, handSize);
     }
 }
