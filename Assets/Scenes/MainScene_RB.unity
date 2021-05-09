@@ -68604,11 +68604,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 428125004}
+  - component: {fileID: 428125006}
   - component: {fileID: 428125003}
   - component: {fileID: 428125002}
   - component: {fileID: 428125005}
   m_Layer: 0
-  m_Name: Eyes
+  m_Name: Main Camera
   m_TagString: MainCamera
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -68699,6 +68700,22 @@ MonoBehaviour:
   m_CropFrameX: 0
   m_CropFrameY: 0
   m_StretchFill: 0
+--- !u!114 &428125006
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 428125001}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 17e00c6d5e1d80a4cabd9d094a054459, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  target: {fileID: 2094640163}
+  normalSpeed: 5
+  maxSpeed: 10
+  maxOffset: 3
 --- !u!1 &556686246
 GameObject:
   m_ObjectHideFlags: 0
@@ -72571,6 +72588,7 @@ MonoBehaviour:
   dashForce: 1500
   dashRecoverTime: 0.3
   dashTimeOffset: 0.2
+  canDash: 0
   grabMovementModifier: 0.5
   isGrabbing: 0
   canGrab: 0
