@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public enum MovementState { SIMPLE, DASH, GRAB };
+public enum GrabStates { NONE, HOLD, CLIMB, CLIMBJUMP };
 
 [RequireComponent(typeof(Rigidbody2D))]
 public class PlayerController : MonoBehaviour
@@ -11,7 +12,8 @@ public class PlayerController : MonoBehaviour
     private PlayerMovementAction playerMovementActionMap;
     private Rigidbody2D thisBody;
 
-    [SerializeField] private MovementState currentMovementState = MovementState.SIMPLE;
+    public MovementState currentMovementState = MovementState.SIMPLE;
+    public GrabStates currentGrabState = GrabStates.NONE;
 
     [HideInInspector] public float inputX;
     [HideInInspector] public float inputY;
@@ -54,13 +56,23 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool canDash;
 
     [Header("Grab Values")]
+    [SerializeField] private int maxStamina;
+    [SerializeField] private int currentStamina;
     [SerializeField] private float grabMovementModifier;
     [SerializeField] private bool isGrabbing;
     [SerializeField] private bool canGrab;
-    [SerializeField] private Transform leftHand, rightHand;
+    [SerializeField] private Transform hand;
     [SerializeField] private Vector2 handSize;
     [SerializeField] private LayerMask grabMask;
     [SerializeField] private bool handVisualization;
+    [SerializeField] private int staminaConsumptionOnHold;          //Stamina that is consumed per frame while climb holding
+    [SerializeField] private int staminaConsumptionOnClimb;         //Stamina that is consumed per frame while climb climbing
+    [SerializeField] private int staminaConsumptionOnClimbJump;     //Stamina that is consumed per frame while climb jumping
+
+    //Keys
+    /* ckey = Jump
+       zkey = Dash
+       xkey = Grab */
 
     private void Awake()
     {
@@ -86,11 +98,15 @@ public class PlayerController : MonoBehaviour
         GrabInput();
     }
 
+
     private void FixedUpdate()
     {
+
         SetHorizontalVelocity();
 
-        GroundCheck(); ApplyDrag();
+        GroundCheck();
+
+        ApplyDrag();
 
         JumpMechanism();
 
@@ -100,7 +116,11 @@ public class PlayerController : MonoBehaviour
 
         Dash();
 
+        //CalculateStamina(currentGrabState);
+
         GrabMechanism();
+
+        Debug.Log(inputY, gameObject);
     }
 
 
@@ -137,6 +157,7 @@ public class PlayerController : MonoBehaviour
             if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
             {
                 thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                currentGrabState = GrabStates.CLIMBJUMP;
             }
         }
 
@@ -257,14 +278,48 @@ public class PlayerController : MonoBehaviour
         currentMovementState = MovementState.SIMPLE;
     }
 
+    private void CalculateStamina(GrabStates grabState)
+    {
+        //If not grabbing return with max Stamina
+        if (isGrabbing == false) { currentStamina = maxStamina; return; }
+
+        //If the player is grabbing then reduce the stamina values every frame according to the type of grab state
+        switch (grabState)
+        {
+            case GrabStates.HOLD:
+                Debug.Log("ClimbHolding");
+                break;
+            case GrabStates.CLIMB:
+                Debug.Log("Climbing");
+                break;
+            case GrabStates.CLIMBJUMP:
+                Debug.Log("<b>Climb Jumped</b>");
+                break;
+            default:
+                Debug.Log("Not CLimbing at all");
+                break;
+        }
+
+        //Reset the stamina values to max when player hits the ground
+        if (groundCheckRealtime == true)
+        {
+            currentStamina = maxStamina;
+        }
+    }
+
     private void GrabMechanism()
     {
-        canGrab = Physics2D.OverlapBox(leftHand.position, handSize, 0, grabMask) || Physics2D.OverlapBox(rightHand.position, handSize, 0, grabMask);
+        canGrab = Physics2D.OverlapBox(hand.position, handSize, 0, grabMask);
 
         if (canGrab)
         {
             if (Keyboard.current.xKey.isPressed)
             {
+                //Set the correct grab state according to the current grab state
+                if (inputY == 0) { currentGrabState = GrabStates.HOLD; }
+                else { currentGrabState = GrabStates.CLIMB; }
+
+                //Climbing
                 isControllable = false;
                 isGrabbing = true;
                 overallGravityModifier = 0;
@@ -277,6 +332,7 @@ public class PlayerController : MonoBehaviour
                 isGrabbing = false;
                 overallGravityModifier = 1;
                 currentMovementState = MovementState.SIMPLE;
+                currentGrabState = GrabStates.NONE;
             }
         }
         else
@@ -291,7 +347,6 @@ public class PlayerController : MonoBehaviour
     private void OnDrawGizmos()
     {
         if (footVisualization == true) Gizmos.DrawCube(foot.position, footSize);
-        if (handVisualization == true) Gizmos.DrawCube(leftHand.position, handSize);
-        if (handVisualization == true) Gizmos.DrawCube(rightHand.position, handSize);
+        if (handVisualization == true) Gizmos.DrawCube(hand.position, handSize);
     }
 }
