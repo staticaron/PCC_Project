@@ -6,11 +6,19 @@ public class PlayerAnimation : MonoBehaviour
 {
     private Animator animator;
     private PlayerController playerController;
+    [SerializeField] private GameObject dashParticleGO;
 
     private void Start()
     {
         animator = GetComponent<Animator>();
         playerController = GetComponent<PlayerController>();
+
+        PlayerController.EDashed += ToggleDashAnimation;
+    }
+
+    private void OnDisable()
+    {
+        PlayerController.EDashed -= ToggleDashAnimation;
     }
 
     private void Update()
@@ -65,6 +73,18 @@ public class PlayerAnimation : MonoBehaviour
         else if (playerController.inputX < 0)
         {
             playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+    }
+
+    private void ToggleDashAnimation(bool start)
+    {
+        if (start == true)
+        {
+            dashParticleGO.SetActive(true);
+        }
+        else
+        {
+            dashParticleGO.SetActive(false);
         }
     }
 }

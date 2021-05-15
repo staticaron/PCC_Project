@@ -14,9 +14,14 @@ public class PlayerController : MonoBehaviour
     public MovementState currentMovementState = MovementState.SIMPLE;
     public GrabStates currentGrabState = GrabStates.NONE;
 
+    //Delegates and Events
+    public delegate void Dashed(bool started);
+    public static event Dashed EDashed;
+
     //The keyboard inputs for the specified axis
     [HideInInspector] public float inputX;
     [HideInInspector] public float inputY;
+    private Vector2 thisRotation;
 
     //Basically needed for animations to work
     [HideInInspector] public float veriticalVelcity;
@@ -24,8 +29,8 @@ public class PlayerController : MonoBehaviour
     //General Properties
     [Header("General Properties")]
     [SerializeField] private bool isControllable;
-    [SerializeField] private float moveSpeed;
-    [SerializeField] private float jumpForce;
+    [SerializeField] private float moveSpeed = 10;
+    [SerializeField] private float jumpForce = 20;
 
     [Header("Checkers")]
     [SerializeField] private bool groundCheck;
@@ -33,45 +38,49 @@ public class PlayerController : MonoBehaviour
     [HideInInspector] public bool groundCheckRealtime;
 
     [Header("Gravity Values")]
-    [SerializeField] private float overallGravityModifier;
-    [SerializeField] private float fallGravityModifier;
-    [SerializeField] private float jumpGravityModifier;
-    [SerializeField] private float airDrag, landDrag, dashDrag, grabDrag;
+    [SerializeField] private float overallGravityModifier = 1;
+    [SerializeField] private float fallGravityModifier = 10;
+    [SerializeField] private float jumpGravityModifier = 4;
+    [SerializeField] private float airDrag = 1, landDrag = 0, dashDrag = 5, grabDrag = 8;
 
     [Header("Coyote Values")]
     [SerializeField] private Transform foot;
-    [SerializeField] private Vector2 footSize;
+    [SerializeField] private Vector2 footSize = new Vector2(1, 0.5f);
     [SerializeField] private LayerMask groundMask;
-    [SerializeField] private float coyoteTime;
+    [SerializeField] private float coyoteTime = 0.2f;
     [SerializeField] private float groundCheckTimer;
     [SerializeField] private bool coyoteEnabled;
     [SerializeField] private bool footVisualization;
 
     [Header("Dash Values")]
-    [SerializeField] private float dashForce;
+    [SerializeField] private float dashForce = 3000;
     [Tooltip("The vector in which the player will dash")]
     [SerializeField] private Vector2 dashVector;
     [Tooltip("It is the time by which dash is expected to end and the state is set to normal state from the dash state")]
-    [SerializeField] private float dashRecoverTime;
+    [SerializeField] private float dashRecoverTime = 0.3f;
     [Tooltip("The time less than the dash recover time by which controls are enabled so as to line up the landing")]
-    [SerializeField] private float preDashRecoverTime;
-    [SerializeField] private float dashTimeOffset;
+    [SerializeField] private float preDashRecoverTime = 0.1f;
+    [Tooltip("Time offset between the key press and direction set")]
+    [SerializeField] private float dashTimeOffset = 0.2f;
     private float dashTimer;
     [SerializeField] private bool canDash;
 
     [Header("Grab Values")]
-    [SerializeField] private int maxStamina;
-    [SerializeField] private int currentStamina;
-    [SerializeField] private float grabMovementModifier;
+    [SerializeField] private int maxStamina = 300;
+    private int currentStamina;
+    [Tooltip("Changes the force applied while climb jumping")]
+    [SerializeField] private float climbJumpModifier = 1;
+    [SerializeField] private float grabMovementModifier = 0.3f;
     [SerializeField] private bool isGrabbing;
     [SerializeField] private bool canGrab;
     [SerializeField] private Transform hand;
-    [SerializeField] private Vector2 handSize;
+    [SerializeField] private Vector2 handSize = new Vector2(.5f, 1);
     [SerializeField] private LayerMask grabMask;
     [SerializeField] private bool handVisualization;
-    [SerializeField] private int staminaConsumptionOnHold;          //Stamina that is consumed per frame while climb holding
-    [SerializeField] private int staminaConsumptionOnClimb;         //Stamina that is consumed per frame while climb climbing
-    [SerializeField] private int staminaConsumptionOnClimbJump;     //Stamina that is consumed per frame while climb jumping
+    [SerializeField] private int staminaConsumptionOnHold = 1;           //Stamina that is consumed per frame while climb holding
+    [SerializeField] private int staminaConsumptionOnClimb = 5;          //Stamina that is consumed per frame while climb climbing
+    [SerializeField] private int staminaConsumptionOnClimbJump = 50;     //Stamina that is consumed per frame while climb jumping
+    [SerializeField] private Vector2 grabJumpDirection;
 
     #region Keys
     /* ckey = Jump
@@ -130,14 +139,24 @@ public class PlayerController : MonoBehaviour
     private void SetValues()
     {
         veriticalVelcity = thisBody.velocity.y;
+        thisRotation = transform.rotation.eulerAngles;
 
-        var thisRotation = transform.rotation.eulerAngles;
+        //Set Dash Vector based on user input
         dashVector = new Vector2(inputX, inputY).normalized * dashForce;
         if (dashVector == Vector2.zero)
         {
             if (thisRotation.y == 0) { dashVector = Vector2.right * dashForce; }
             else if (thisRotation.y == 180) { dashVector = Vector2.left * dashForce; }
         }
+
+        //Set Grab Jump Direction
+        if (currentMovementState == MovementState.GRAB)
+        {
+            if (thisRotation.y == 0 && inputX < 0) { grabJumpDirection = (new Vector2(-1, 1).normalized); }
+            else if (thisRotation.y == 180 && inputX > 0) { grabJumpDirection = (new Vector2(1, 1).normalized); }
+            else { grabJumpDirection = Vector2.zero; }
+        }
+
     }
 
     private void GrabInput()
@@ -164,13 +183,23 @@ public class PlayerController : MonoBehaviour
         }
         else if (currentMovementState == MovementState.GRAB)
         {
-            if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
+            if (grabJumpDirection != Vector2.zero)
             {
-                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
-                currentGrabState = GrabStates.CLIMBJUMP;
+                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
+                {
+                    thisBody.velocity = new Vector2(grabJumpDirection.x * jumpForce * climbJumpModifier, grabJumpDirection.y * jumpForce * climbJumpModifier);
+                    currentGrabState = GrabStates.CLIMBJUMP;
+                }
+            }
+            else
+            {
+                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
+                {
+                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                    currentGrabState = GrabStates.CLIMBJUMP;
+                }
             }
         }
-
     }
 
     private void RemoveFloatyness()
@@ -276,6 +305,7 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(PreDashRecover(preDashRecoverTime));
             StartCoroutine(DashRecover(dashRecoverTime));
 
+            if (EDashed != null) EDashed(true);
 
             canDash = false;
         }
@@ -296,6 +326,8 @@ public class PlayerController : MonoBehaviour
         overallGravityModifier = 1;
         thisBody.drag = airDrag;
         currentMovementState = MovementState.SIMPLE;
+
+        if (EDashed != null) { EDashed(false); }
     }
 
     private void CalculateStamina(GrabStates grabState)
