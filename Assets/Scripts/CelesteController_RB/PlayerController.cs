@@ -127,15 +127,7 @@ public class PlayerController : MonoBehaviour
     {
         veriticalVelcity = thisBody.velocity.y;
 
-        dashVector = new Vector2(inputX * dashForce, inputY * dashForce);
-
-        if (dashVector == Vector2.zero)
-        {
-            if (transform.rotation.eulerAngles.y == 0) { dashVector = Vector2.right; }
-            else if (transform.rotation.eulerAngles.y == 180) { dashVector = Vector2.left; }
-        }
-
-        dashVector = dashVector.normalized;
+        dashVector = new Vector2(inputX, inputY).normalized * dashForce;
     }
 
     private void GrabInput()

@@ -73000,7 +73000,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentMovementState: 0
-  currentGrabState: 0
+  currentGrabState: 3
   inputX: 0
   inputY: 0
   veriticalVelcity: 0
@@ -73008,7 +73008,7 @@ MonoBehaviour:
   moveSpeed: 10
   jumpForce: 20
   groundCheck: 0
-  groundCheckRealtime: 0
+  groundCheckRealtime: 1
   overallGravityModifier: 1
   fallGravityModifier: 10
   jumpGravityModifier: 4
@@ -73026,13 +73026,14 @@ MonoBehaviour:
   coyoteEnabled: 0
   footVisualization: 0
   dashForce: 3000
+  dashVector: {x: -1, y: 0}
   dashRecoverTime: 0.3
   dashTimeOffset: 0.2
-  canDash: 0
-  maxStamina: 1000
-  currentStamina: 0
+  canDash: 1
+  maxStamina: 300
+  currentStamina: 300
   grabMovementModifier: 0.1
-  isGrabbing: 1
+  isGrabbing: 0
   canGrab: 0
   hand: {fileID: 412553443}
   handSize: {x: 0.5, y: 1}
@@ -73042,7 +73043,7 @@ MonoBehaviour:
   handVisualization: 1
   staminaConsumptionOnHold: 1
   staminaConsumptionOnClimb: 2
-  staminaConsumptionOnClimbJump: 5
+  staminaConsumptionOnClimbJump: 50
 --- !u!95 &2094640168
 Animator:
   serializedVersion: 3
