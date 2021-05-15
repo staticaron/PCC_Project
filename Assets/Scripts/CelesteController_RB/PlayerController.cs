@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -15,12 +14,14 @@ public class PlayerController : MonoBehaviour
     public MovementState currentMovementState = MovementState.SIMPLE;
     public GrabStates currentGrabState = GrabStates.NONE;
 
+    //The keyboard inputs for the specified axis
     [HideInInspector] public float inputX;
     [HideInInspector] public float inputY;
 
-    //Stuff for Animations
+    //Basically needed for animations to work
     [HideInInspector] public float veriticalVelcity;
 
+    //General Properties
     [Header("General Properties")]
     [SerializeField] private bool isControllable;
     [SerializeField] private float moveSpeed;
@@ -29,28 +30,27 @@ public class PlayerController : MonoBehaviour
     [Header("Checkers")]
     [SerializeField] private bool groundCheck;
     //GroundCheck = GroundCheckRealtime + coyotiness
+    [HideInInspector] public bool groundCheckRealtime;
 
     [Header("Gravity Values")]
     [SerializeField] private float overallGravityModifier;
     [SerializeField] private float fallGravityModifier;
     [SerializeField] private float jumpGravityModifier;
-    [SerializeField] private float airDrag, landDrag, dashDrag;
+    [SerializeField] private float airDrag, landDrag, dashDrag, grabDrag;
 
-    [Header("Ground Check values")]
+    [Header("Coyote Values")]
     [SerializeField] private Transform foot;
     [SerializeField] private Vector2 footSize;
     [SerializeField] private LayerMask groundMask;
     [SerializeField] private float coyoteTime;
     [SerializeField] private float groundCheckTimer;
     [SerializeField] private bool coyoteEnabled;
-    [HideInInspector] public bool groundCheckRealtime;
     [SerializeField] private bool footVisualization;
 
     [Header("Dash Values")]
     [SerializeField] private float dashForce;
-    private Vector2 dashVector;
+    [SerializeField] private Vector2 dashVector;
     [SerializeField] private float dashRecoverTime;
-    private bool wasDashed;
     [SerializeField] private float dashTimeOffset;
     private float dashTimer;
     [SerializeField] private bool canDash;
@@ -69,10 +69,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int staminaConsumptionOnClimb;         //Stamina that is consumed per frame while climb climbing
     [SerializeField] private int staminaConsumptionOnClimbJump;     //Stamina that is consumed per frame while climb jumping
 
-    //Keys
+    #region Keys
     /* ckey = Jump
        zkey = Dash
        xkey = Grab */
+    #endregion
 
     private void Awake()
     {
@@ -116,18 +117,25 @@ public class PlayerController : MonoBehaviour
 
         Dash();
 
-        //CalculateStamina(currentGrabState);
+        CalculateStamina(currentGrabState);
 
         GrabMechanism();
-
-        Debug.Log(inputY, gameObject);
     }
 
 
     private void SetValues()
     {
         veriticalVelcity = thisBody.velocity.y;
+
         dashVector = new Vector2(inputX * dashForce, inputY * dashForce);
+
+        if (dashVector == Vector2.zero)
+        {
+            if (transform.rotation.eulerAngles.y == 0) { dashVector = Vector2.right; }
+            else if (transform.rotation.eulerAngles.y == 180) { dashVector = Vector2.left; }
+        }
+
+        dashVector = dashVector.normalized;
     }
 
     private void GrabInput()
@@ -200,7 +208,7 @@ public class PlayerController : MonoBehaviour
 
     private void ApplyDrag()
     {
-        if (thisBody.drag != dashDrag)
+        if (currentMovementState == MovementState.SIMPLE)
         {
             if (groundCheckRealtime == true)
             {
@@ -211,26 +219,27 @@ public class PlayerController : MonoBehaviour
                 thisBody.drag = airDrag;
             }
         }
+        else if (currentMovementState == MovementState.DASH)
+        {
+            thisBody.drag = dashDrag;
+        }
     }
 
     //Can be called from another script (crystal) to replenish the dash
-    public void SetDash(int value = -1)
+    public void SetDash(bool value)
     {
-        if (value == -1)
-        {
-            if (groundCheckRealtime == true) canDash = true;
-        }
-        else
-        {
-            if (value == 0) canDash = false;
-            else if (value == 1) canDash = true;
-        }
+        canDash = value;
+    }
+
+    public void SetDash()
+    {
+        if (groundCheckRealtime == true) canDash = true;
     }
 
     private void Dash()
     {
-        //Take Dash Input
-        if (Keyboard.current.zKey.wasPressedThisFrame && canDash == true)
+        //Take Dash Input and stores it in dash timer, dash timer allows some room for the player in case direction was set later than pressing the dash key
+        if (Keyboard.current.xKey.wasPressedThisFrame && canDash == true)
         {
             dashTimer = dashTimeOffset;
         }
@@ -239,10 +248,12 @@ public class PlayerController : MonoBehaviour
             dashTimer -= Time.deltaTime;
         }
 
-        //Apply dash according to the input
+        //Apply dash time spent since the dash key was pressed is less than the dash time
         if (dashTimer > 0 && currentMovementState != MovementState.DASH)
         {
             if (dashVector == Vector2.zero) return;
+
+            currentMovementState = MovementState.DASH;
 
             if (dashVector == new Vector2(1 * dashForce, 0) || dashVector == new Vector2(-1 * dashForce, 0))
             {
@@ -250,20 +261,18 @@ public class PlayerController : MonoBehaviour
                 isControllable = false;
                 thisBody.velocity = Vector2.zero;
                 overallGravityModifier = 0;
-                thisBody.drag = dashDrag;
             }
             else
             {
                 //If not dashing sideways then overall gravity should be normal as there is no need of uncontrolled situation as it is already is
                 isControllable = false;
                 thisBody.velocity = Vector2.zero;
-                thisBody.drag = dashDrag;
             }
 
+            //Apply actual dash force
             thisBody.AddForce(dashVector);
             StartCoroutine(DashRecover(dashRecoverTime));
 
-            currentMovementState = MovementState.DASH;
             canDash = false;
         }
     }
@@ -280,65 +289,87 @@ public class PlayerController : MonoBehaviour
 
     private void CalculateStamina(GrabStates grabState)
     {
-        //If not grabbing return with max Stamina
-        if (isGrabbing == false) { currentStamina = maxStamina; return; }
-
-        //If the player is grabbing then reduce the stamina values every frame according to the type of grab state
-        switch (grabState)
+        if (groundCheckRealtime == true) { currentStamina = maxStamina; }
+        else
         {
-            case GrabStates.HOLD:
-                Debug.Log("ClimbHolding");
-                break;
-            case GrabStates.CLIMB:
-                Debug.Log("Climbing");
-                break;
-            case GrabStates.CLIMBJUMP:
-                Debug.Log("<b>Climb Jumped</b>");
-                break;
-            default:
-                Debug.Log("Not CLimbing at all");
-                break;
+            //The player is grabbing and is not touching the ground, so decrease the stamina
+            if (isGrabbing)
+            {
+                if (grabState == GrabStates.HOLD)
+                {
+                    currentStamina -= staminaConsumptionOnHold;
+                }
+                else if (grabState == GrabStates.CLIMB)
+                {
+                    currentStamina -= staminaConsumptionOnClimb;
+                }
+                else if (grabState == GrabStates.CLIMBJUMP)
+                {
+                    currentStamina -= staminaConsumptionOnClimbJump;
+                }
+            }
         }
 
-        //Reset the stamina values to max when player hits the ground
-        if (groundCheckRealtime == true)
-        {
-            currentStamina = maxStamina;
-        }
+        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
     }
 
     private void GrabMechanism()
     {
         canGrab = Physics2D.OverlapBox(hand.position, handSize, 0, grabMask);
 
+        //Ckeck if player is close enough to a wall to grab it
         if (canGrab)
         {
-            if (Keyboard.current.xKey.isPressed)
+            //If the player has stamina then allow the grab
+            if (currentStamina > 0)
             {
-                //Set the correct grab state according to the current grab state
-                if (inputY == 0) { currentGrabState = GrabStates.HOLD; }
-                else { currentGrabState = GrabStates.CLIMB; }
-
-                //Climbing
-                isControllable = false;
-                isGrabbing = true;
-                overallGravityModifier = 0;
-                currentMovementState = MovementState.GRAB;
-                thisBody.velocity = new Vector2(thisBody.velocity.x, inputY * moveSpeed * grabMovementModifier);
+                //Grab
+                if (Keyboard.current.zKey.isPressed)
+                {
+                    SetGrab(true);
+                }
+                else
+                {
+                    SetGrab(false);
+                }
             }
             else
             {
-                isControllable = true;
-                isGrabbing = false;
-                overallGravityModifier = 1;
-                currentMovementState = MovementState.SIMPLE;
-                currentGrabState = GrabStates.NONE;
+                SetGrab(false);
             }
         }
         else
         {
+            SetGrab(false);
+        }
+    }
+
+    private void SetGrab(bool value)
+    {
+        if (value == true)
+        {
+            //Set the correct grab state according to the current grab state
+            if (inputY == 0) { currentGrabState = GrabStates.HOLD; }
+            else { currentGrabState = GrabStates.CLIMB; }
+
+            //Grabbing
+            isControllable = false;
+            isGrabbing = true;
+            overallGravityModifier = 0;
+            thisBody.drag = grabDrag;
+            currentMovementState = MovementState.GRAB;
+            //thisBody.velocity = new Vector2(thisBody.velocity.x, inputY * moveSpeed * grabMovementModifier);
+            thisBody.AddForce(new Vector2(0, inputY * moveSpeed * grabMovementModifier), (ForceMode2D)ForceMode.Acceleration);
+        }
+        else
+        {
+            //If player was not grabbing earlier than what is the point of setting its grab to false
+            if (currentMovementState != MovementState.GRAB) { return; }
+
+            //Not grabbing
             isControllable = true;
             isGrabbing = false;
+            thisBody.drag = airDrag;
             overallGravityModifier = 1;
             currentMovementState = MovementState.SIMPLE;
         }
