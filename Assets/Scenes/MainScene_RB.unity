@@ -68685,7 +68685,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 428125001}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 6a160d838ff8b4b4693ac20007e008c7, type: 3}
   m_Name: 
@@ -68705,7 +68705,7 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 428125001}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 17e00c6d5e1d80a4cabd9d094a054459, type: 3}
   m_Name: 
@@ -73014,7 +73014,7 @@ MonoBehaviour:
   jumpGravityModifier: 4
   airDrag: 1
   landDrag: 0
-  dashDrag: 8
+  dashDrag: 5
   grabDrag: 8
   foot: {fileID: 604684265}
   footSize: {x: 1, y: 0.5}
@@ -73028,6 +73028,7 @@ MonoBehaviour:
   dashForce: 3000
   dashVector: {x: -1, y: 0}
   dashRecoverTime: 0.3
+  preDashRecoverTime: 0.1
   dashTimeOffset: 0.2
   canDash: 1
   maxStamina: 300

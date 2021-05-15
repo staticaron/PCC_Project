@@ -49,8 +49,12 @@ public class PlayerController : MonoBehaviour
 
     [Header("Dash Values")]
     [SerializeField] private float dashForce;
+    [Tooltip("The vector in which the player will dash")]
     [SerializeField] private Vector2 dashVector;
+    [Tooltip("It is the time by which dash is expected to end and the state is set to normal state from the dash state")]
     [SerializeField] private float dashRecoverTime;
+    [Tooltip("The time less than the dash recover time by which controls are enabled so as to line up the landing")]
+    [SerializeField] private float preDashRecoverTime;
     [SerializeField] private float dashTimeOffset;
     private float dashTimer;
     [SerializeField] private bool canDash;
@@ -127,7 +131,13 @@ public class PlayerController : MonoBehaviour
     {
         veriticalVelcity = thisBody.velocity.y;
 
+        var thisRotation = transform.rotation.eulerAngles;
         dashVector = new Vector2(inputX, inputY).normalized * dashForce;
+        if (dashVector == Vector2.zero)
+        {
+            if (thisRotation.y == 0) { dashVector = Vector2.right * dashForce; }
+            else if (thisRotation.y == 180) { dashVector = Vector2.left * dashForce; }
+        }
     }
 
     private void GrabInput()
@@ -263,17 +273,26 @@ public class PlayerController : MonoBehaviour
 
             //Apply actual dash force
             thisBody.AddForce(dashVector);
+            StartCoroutine(PreDashRecover(preDashRecoverTime));
             StartCoroutine(DashRecover(dashRecoverTime));
+
 
             canDash = false;
         }
+    }
+
+    private IEnumerator<WaitForSeconds> PreDashRecover(float time)
+    {
+        yield return new WaitForSeconds(time);
+
+        //Control is given back before the complete dash takes place
+        isControllable = true;
     }
 
     private IEnumerator<WaitForSeconds> DashRecover(float time)
     {
         yield return new WaitForSeconds(time);
 
-        isControllable = true;
         overallGravityModifier = 1;
         thisBody.drag = airDrag;
         currentMovementState = MovementState.SIMPLE;
