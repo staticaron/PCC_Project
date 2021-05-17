@@ -74395,7 +74395,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 99e1beacf34e67c42afd2d344aefcc3c, type: 3}
+    - sprite: {fileID: 21300000, guid: 5c8b2ada1a819a54e8c051165c738f18, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -77759,6 +77759,10 @@ MonoBehaviour:
   inputX: 0
   inputY: 0
   veriticalVelcity: 0
+  runEnabled: 1
+  jumpEnabled: 1
+  dashEnabled: 1
+  grabEnabled: 1
   isControllable: 1
   moveSpeed: 10
   jumpForce: 20

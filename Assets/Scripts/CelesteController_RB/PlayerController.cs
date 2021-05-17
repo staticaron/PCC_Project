@@ -26,6 +26,9 @@ public class PlayerController : MonoBehaviour
     //Basically needed for animations to work
     [HideInInspector] public float veriticalVelcity;
 
+    [Header("Actions")]
+    [SerializeField] private bool runEnabled, jumpEnabled, dashEnabled, grabEnabled;
+
     //General Properties
     [Header("General Properties")]
     [SerializeField] private bool isControllable;
@@ -116,23 +119,23 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
 
-        SetHorizontalVelocity();
+        if (runEnabled) SetHorizontalVelocity();
 
         GroundCheck();
 
         ApplyDrag();
 
-        JumpMechanism();
+        if (jumpEnabled) JumpMechanism();
 
         RemoveFloatyness();
 
-        SetDash(); //No value mean set the dash according to the groundCheckRealtime
+        SetDash();
 
-        Dash();
+        if (dashEnabled) Dash();
 
         CalculateStamina(currentGrabState);
 
-        GrabMechanism();
+        if (grabEnabled) GrabMechanism();
     }
 
 
