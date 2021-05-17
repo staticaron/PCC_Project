@@ -6,7 +6,7 @@ public class PlayerAnimation : MonoBehaviour
 {
     private Animator animator;
     private PlayerController playerController;
-    [SerializeField] private GameObject dashParticleGO;
+    [SerializeField] private ParticleSystem dashParticleGO;
 
     private void Start()
     {
@@ -80,11 +80,11 @@ public class PlayerAnimation : MonoBehaviour
     {
         if (start == true)
         {
-            dashParticleGO.SetActive(true);
+            dashParticleGO.Play();
         }
         else
         {
-            dashParticleGO.SetActive(false);
+            dashParticleGO.Stop();
         }
     }
 }
