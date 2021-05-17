@@ -2,6 +2,7 @@
 3. Add : Multiple Jumps
 4. Add : Crouch
 5. Add : Momentum System
-6. Fix : Dash upward while grabbing high speed
+6. Add : Dash upward while grabbing high speed
+7: Add : Round off the the strict collision
 
 (Done) 1. Add : Bools to disable a particular component(s)

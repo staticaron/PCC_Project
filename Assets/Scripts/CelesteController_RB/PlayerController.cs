@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 public enum MovementState { SIMPLE, DASH, GRAB };
 public enum GrabStates { NONE, HOLD, CLIMB, CLIMBJUMP };
 
-[RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D), typeof(CircleCollider2D))]
 public class PlayerController : MonoBehaviour
 {
     private PlayerMovementAction playerMovementActionMap;
@@ -56,6 +56,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool footVisualization;
 
     [Header("Dash Values")]
+    [Tooltip("Number of dashes allowed without touching the ground")]
+    [SerializeField] private int numberOfDashes = 1;
+    private int dashesLeft;
     [SerializeField] private float dashForce = 3000;
     [Tooltip("The vector in which the player will dash")]
     [SerializeField] private Vector2 dashVector;
@@ -85,6 +88,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int staminaConsumptionOnClimbJump = 50;     //Stamina that is consumed per frame while climb jumping
     [SerializeField] private Vector2 grabJumpDirection;
 
+    //Colliders
+    private BoxCollider2D boxCollider;
+    private CircleCollider2D circleCollider;
+
     #region Keys
     /* ckey = Jump
        zkey = Dash
@@ -96,6 +103,8 @@ public class PlayerController : MonoBehaviour
         //Initialize variables
         playerMovementActionMap = new PlayerMovementAction();
         thisBody = GetComponent<Rigidbody2D>();
+        boxCollider = GetComponent<BoxCollider2D>();
+        circleCollider = GetComponent<CircleCollider2D>();
     }
 
     private void OnEnable()
@@ -137,7 +146,6 @@ public class PlayerController : MonoBehaviour
 
         if (grabEnabled) GrabMechanism();
     }
-
 
     private void SetValues()
     {
@@ -267,7 +275,11 @@ public class PlayerController : MonoBehaviour
 
     public void SetDash()
     {
-        if (groundCheckRealtime == true) canDash = true;
+        if (groundCheckRealtime == true)
+        {
+            canDash = true;
+            dashesLeft = numberOfDashes;
+        }
     }
 
     private void Dash()
@@ -305,12 +317,21 @@ public class PlayerController : MonoBehaviour
 
             //Apply actual dash force
             thisBody.AddForce(dashVector);
+
+            //Start the timer to end the dash
             StartCoroutine(PreDashRecover(preDashRecoverTime));
             StartCoroutine(DashRecover(dashRecoverTime));
 
+            //Enable the circle collider so as to smooth out the collisions
+            circleCollider.enabled = true;
+            boxCollider.enabled = false;
+
+            //Trigger the event for anyone
             if (EDashed != null) EDashed(true);
 
-            canDash = false;
+            //Manage dash count and canDash
+            dashesLeft -= 1;
+            if (dashesLeft <= 0) canDash = false;
         }
     }
 
@@ -331,6 +352,10 @@ public class PlayerController : MonoBehaviour
         currentMovementState = MovementState.SIMPLE;
 
         if (EDashed != null) { EDashed(false); }
+
+        //Restore the colliders to original state
+        boxCollider.enabled = true;
+        circleCollider.enabled = false;
     }
 
     private void CalculateStamina(GrabStates grabState)
