@@ -77620,7 +77620,6 @@ GameObject:
   - component: {fileID: 2094640165}
   - component: {fileID: 2094640166}
   - component: {fileID: 2094640168}
-  - component: {fileID: 2094640170}
   m_Layer: 0
   m_Name: Player
   m_TagString: Untagged
@@ -77785,7 +77784,6 @@ MonoBehaviour:
   groundCheckTimer: 0
   coyoteEnabled: 0
   footVisualization: 0
-  numberOfDashes: 2
   dashForce: 3000
   dashVector: {x: -1, y: 0}
   dashRecoverTime: 0.3
@@ -77839,19 +77837,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashParticleGO: {fileID: 1698594109}
---- !u!58 &2094640170
-CircleCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2094640162}
-  m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 6200000, guid: 33743542af77b644585ee0d0b58f5de0, type: 2}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.25}
-  serializedVersion: 2
-  m_Radius: 0.64594567
