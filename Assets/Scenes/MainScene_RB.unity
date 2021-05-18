@@ -72868,7 +72868,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1698594110
 Transform:
   m_ObjectHideFlags: 0
@@ -72877,7 +72877,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1698594109}
   m_LocalRotation: {x: -0.7071068, y: 0, z: 0.7071068, w: 0}
-  m_LocalPosition: {x: -0.4, y: -0.25, z: 0}
+  m_LocalPosition: {x: -0.35, y: -0.25, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2094640163}
@@ -72934,7 +72934,7 @@ ParticleSystemRenderer:
   m_SortingFudge: 0
   m_NormalDirection: 1
   m_ShadowBias: 0
-  m_RenderAlignment: 1
+  m_RenderAlignment: 0
   m_Pivot: {x: 0, y: 0, z: 0}
   m_Flip: {x: 0, y: 0, z: 0}
   m_UseCustomVertexStreams: 0
@@ -72963,7 +72963,7 @@ ParticleSystem:
   ringBufferLoopRange: {x: 0, y: 1}
   looping: 1
   prewarm: 0
-  playOnAwake: 0
+  playOnAwake: 1
   useUnscaledTime: 0
   autoRandomSeed: 1
   useRigidbodyForVelocity: 0
@@ -73030,7 +73030,7 @@ ParticleSystem:
     startLifetime:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.8
+      scalar: 1
       minScalar: 5
       maxCurve:
         serializedVersion: 2
@@ -73833,7 +73833,7 @@ ParticleSystem:
     rateOverDistance:
       serializedVersion: 2
       minMaxState: 0
-      scalar: 0.6
+      scalar: 0.8
       minScalar: 0
       maxCurve:
         serializedVersion: 2
@@ -73898,29 +73898,20 @@ ParticleSystem:
         - serializedVersion: 3
           time: 0
           value: 1
-          inSlope: 0
-          outSlope: 0
+          inSlope: -0.40540314
+          outSlope: -0.40540314
           tangentMode: 34
           weightedMode: 0
           inWeight: 0
           outWeight: 0.33333334
         - serializedVersion: 3
-          time: 0.8473333
-          value: 1
-          inSlope: -0.00000048086747
-          outSlope: -0.00000048086747
-          tangentMode: 0
+          time: 1
+          value: 0.59459686
+          inSlope: -0.40540314
+          outSlope: -0.40540314
+          tangentMode: 34
           weightedMode: 0
           inWeight: 0.33333334
-          outWeight: 1
-        - serializedVersion: 3
-          time: 1
-          value: 0.6486511
-          inSlope: -3.6485553
-          outSlope: -3.6485553
-          tangentMode: 0
-          weightedMode: 0
-          inWeight: 0.21834154
           outWeight: 0
         m_PreInfinity: 2
         m_PostInfinity: 2
@@ -74229,7 +74220,7 @@ ParticleSystem:
         serializedVersion: 2
         key0: {r: 1, g: 1, b: 1, a: 1}
         key1: {r: 1, g: 1, b: 1, a: 1}
-        key2: {r: 1, g: 1, b: 1, a: 0}
+        key2: {r: 0, g: 0, b: 0, a: 0}
         key3: {r: 0, g: 0, b: 0, a: 0}
         key4: {r: 0, g: 0, b: 0, a: 0}
         key5: {r: 0, g: 0, b: 0, a: 0}
@@ -74237,7 +74228,7 @@ ParticleSystem:
         key7: {r: 0, g: 0, b: 0, a: 0}
         ctime0: 0
         ctime1: 65535
-        ctime2: 65535
+        ctime2: 0
         ctime3: 0
         ctime4: 0
         ctime5: 0
@@ -74404,7 +74395,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 0b4768f2ab470f44ca33fa59836a0774, type: 3}
+    - sprite: {fileID: 21300000, guid: 5c8b2ada1a819a54e8c051165c738f18, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -77775,6 +77766,7 @@ MonoBehaviour:
   grabEnabled: 1
   isControllable: 1
   moveSpeed: 10
+  jumpForce: 20
   groundCheck: 0
   groundCheckRealtime: 1
   overallGravityModifier: 1
@@ -77793,8 +77785,6 @@ MonoBehaviour:
   groundCheckTimer: 0
   coyoteEnabled: 0
   footVisualization: 0
-  numberOfJumps: 2
-  jumpForce: 20
   numberOfDashes: 2
   dashForce: 3000
   dashVector: {x: -1, y: 0}
@@ -77848,7 +77838,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5753831765a0a4a418b83b3e4429b643, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  dashParticleGO: {fileID: 1698594112}
+  dashParticleGO: {fileID: 1698594109}
 --- !u!58 &2094640170
 CircleCollider2D:
   m_ObjectHideFlags: 0

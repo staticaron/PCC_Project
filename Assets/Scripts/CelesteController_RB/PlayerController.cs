@@ -33,6 +33,7 @@ public class PlayerController : MonoBehaviour
     [Header("General Properties")]
     [SerializeField] private bool isControllable;
     [SerializeField] private float moveSpeed = 10;
+    [SerializeField] private float jumpForce = 20;
 
     [Header("Checkers")]
     [SerializeField] private bool groundCheck;
@@ -53,12 +54,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float groundCheckTimer;
     [SerializeField] private bool coyoteEnabled;
     [SerializeField] private bool footVisualization;
-
-    [Header("Jump Values")]
-    [SerializeField] private int numberOfJumps = 1;
-    private int jumpsLeft;
-    [SerializeField] private float jumpForce = 20;
-
 
     [Header("Dash Values")]
     [Tooltip("Number of dashes allowed without touching the ground")]
@@ -129,6 +124,7 @@ public class PlayerController : MonoBehaviour
         GrabInput();
     }
 
+
     private void FixedUpdate()
     {
 
@@ -172,11 +168,6 @@ public class PlayerController : MonoBehaviour
             else { grabJumpDirection = Vector2.zero; }
         }
 
-        //Restore the amount of jumps
-        if (groundCheckRealtime)
-        {
-            jumpsLeft = numberOfJumps;
-        }
     }
 
     private void GrabInput()
@@ -196,30 +187,27 @@ public class PlayerController : MonoBehaviour
     {
         if (currentMovementState == MovementState.SIMPLE)
         {
-            if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
+            if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame)
             {
                 thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
-                jumpsLeft -= 1;
             }
         }
         else if (currentMovementState == MovementState.GRAB)
         {
             if (grabJumpDirection != Vector2.zero)
             {
-                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
+                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
                 {
                     thisBody.velocity = new Vector2(grabJumpDirection.x * jumpForce * climbJumpModifier, grabJumpDirection.y * jumpForce * climbJumpModifier);
                     currentGrabState = GrabStates.CLIMBJUMP;
-                    jumpsLeft -= 1;
                 }
             }
             else
             {
-                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
+                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
                 {
                     thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
                     currentGrabState = GrabStates.CLIMBJUMP;
-                    jumpsLeft -= 1;
                 }
             }
         }
