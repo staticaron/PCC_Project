@@ -20,6 +20,12 @@ public class PlayerController : MonoBehaviour
     public delegate void Dashed(bool started);
     public static event Dashed EDashed;
 
+    public delegate void Grabbed(bool started);
+    public static event Grabbed EGrabbed;
+
+    public delegate void Jumped(bool sterted);
+    public static event Jumped EJumped;
+
     //The keyboard inputs for the specified axis
     [HideInInspector] public float inputX;
     [HideInInspector] public float inputY;
@@ -225,6 +231,8 @@ public class PlayerController : MonoBehaviour
                     currentGrabState = GrabStates.CLIMBJUMP;
                 }
             }
+
+            //Note that in case of climb jumping, currentMovementState is not set to simple after the jump because it is set inside the grab function itself
         }
     }
 
@@ -435,9 +443,12 @@ public class PlayerController : MonoBehaviour
             isGrabbing = true;
             overallGravityModifier = 0;
             thisBody.drag = grabDrag;
-            currentMovementState = MovementState.GRAB;
-            //thisBody.velocity = new Vector2(thisBody.velocity.x, inputY * moveSpeed * grabMovementModifier);
             thisBody.AddForce(new Vector2(0, inputY * moveSpeed * grabMovementModifier), (ForceMode2D)ForceMode.Acceleration);
+
+            //Raise Event
+            if (currentMovementState != MovementState.GRAB) { if (EGrabbed != null) EGrabbed(true); }
+
+            currentMovementState = MovementState.GRAB;
         }
         else
         {
@@ -449,6 +460,10 @@ public class PlayerController : MonoBehaviour
             isGrabbing = false;
             thisBody.drag = airDrag;
             overallGravityModifier = 1;
+
+            //Raise Event
+            if (EGrabbed != null) EGrabbed(false);
+
             currentMovementState = MovementState.SIMPLE;
         }
     }

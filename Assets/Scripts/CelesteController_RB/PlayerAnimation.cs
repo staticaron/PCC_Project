@@ -14,11 +14,13 @@ public class PlayerAnimation : MonoBehaviour
         playerController = GetComponent<PlayerController>();
 
         PlayerController.EDashed += ToggleDashAnimation;
+        PlayerController.EGrabbed += ToggleGrabAnimation;
     }
 
     private void OnDisable()
     {
         PlayerController.EDashed -= ToggleDashAnimation;
+        PlayerController.EGrabbed -= ToggleGrabAnimation;
     }
 
     private void Update()
@@ -85,6 +87,17 @@ public class PlayerAnimation : MonoBehaviour
         else
         {
             dashParticleGO.Stop();
+        }
+    }
+
+    private void ToggleGrabAnimation(bool start)
+    {
+        if (start == true) { animator.SetTrigger("Grab"); animator.SetBool("IsGrabbing", true); }
+        else
+        {
+
+            animator.SetBool("IsGrabbing", false);
+
         }
     }
 }
