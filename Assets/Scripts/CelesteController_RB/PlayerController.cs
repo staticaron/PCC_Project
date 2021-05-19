@@ -49,6 +49,23 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool groundCheck;
     //GroundCheck = GroundCheckRealtime + coyotiness
     [SerializeField] public bool groundCheckRealtime;
+    [SerializeField] private bool shoulderCheckRealtime;
+
+    [Header("Foot Properties------------------------------------------------------------------------------")]
+    [SerializeField] private Transform foot;
+    [SerializeField] private Vector2 footSize = new Vector2(1, 0.5f);
+    [SerializeField] private LayerMask groundMask;
+    [SerializeField] private bool footVisualization;
+
+
+    [Header("Hand Properties------------------------------------------------------------------------------")]
+    [SerializeField] private Transform hand;
+    [SerializeField] private Transform shoulder;
+    [SerializeField] private Vector2 handSize = new Vector2(.5f, 1);
+    [SerializeField] private Vector2 shoulderSize = new Vector2(.5f, 1);
+    [Tooltip("Objects in this layer can be grabbed")]
+    [SerializeField] private LayerMask grabMask;
+    [SerializeField] private bool handVisualization;
 
     [Header("Gravity Values------------------------------------------------------------------------------")]
     [SerializeField] private float overallGravityModifier = 1;
@@ -57,13 +74,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float airDrag = 1, landDrag = 0, dashDrag = 5, grabDrag = 8;
 
     [Header("Coyote Values------------------------------------------------------------------------------")]
-    [SerializeField] private Transform foot;
-    [SerializeField] private Vector2 footSize = new Vector2(1, 0.5f);
-    [SerializeField] private LayerMask groundMask;
     [SerializeField] private float coyoteTime = 0.2f;
     [SerializeField] private float groundCheckTimer;
     [SerializeField] private bool coyoteEnabled;
-    [SerializeField] private bool footVisualization;
 
     [Header("Jump Values------------------------------------------------------------------------------")]
     [SerializeField] private int numberOfJumps = 1;
@@ -93,18 +106,16 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Changes the speed of climbing (1 means same speed as moveSpeed)")]
     [SerializeField] private float grabMovementModifier = 0.3f;
     [SerializeField] private bool isGrabbing;
-    [SerializeField] private bool canGrab;
-    [SerializeField] private Transform hand;
-    [SerializeField] private Vector2 handSize = new Vector2(.5f, 1);
-    [Tooltip("Objects in this layer can be grabbed")]
-    [SerializeField] private LayerMask grabMask;
-    [SerializeField] private bool handVisualization;
+    [SerializeField] private bool handCheckRealtime;
     [SerializeField] private int staminaConsumptionOnHold = 1;           //Stamina that is consumed per frame while climb holding
     [SerializeField] private int staminaConsumptionOnClimb = 5;          //Stamina that is consumed per frame while climb climbing
     [SerializeField] private int staminaConsumptionOnClimbJump = 50;     //Stamina that is consumed per frame while climb jumping
     [SerializeField] private Vector2 grabJumpDirection;
-    [Tooltip("The temporary direction of applied force while climb jumping. (1, 1) means force will be applied at (1, 0.5) if jump is made to right and (-1, 0.5) if the jump is made to the left")]
+    [Tooltip("The temporary direction of applied force while climb jumping. (1, 0.5) means force will be applied at (1, 0.5) if jump is made to right and (-1, 0.5) if the jump is made to the left")]
     [SerializeField] private Vector2 tempGrabJumpDirection = new Vector2(1, 1);
+    [SerializeField] private Vector2 shoulderPushForceDirection;
+    [Tooltip("The temp direction in which the shoulder push is applied.  (1, 0.5) means force will be applied at (1, 0.5) if character is grabbing right and (-1, 0.5) if character is grabbing left")]
+    [SerializeField] private Vector2 tempShoulderPushDirection = new Vector2(1, 1);
 
     //Colliders
     private BoxCollider2D boxCollider;
@@ -163,6 +174,12 @@ public class PlayerController : MonoBehaviour
 
     private void SetValues()
     {
+        //Do checks
+        groundCheckRealtime = Physics2D.OverlapBox(foot.position, footSize, 0, groundMask);
+        shoulderCheckRealtime = Physics2D.OverlapBox(shoulder.position, shoulderSize, 0, grabMask);
+        handCheckRealtime = Physics2D.OverlapBox(hand.position, handSize, 0, grabMask);
+
+        //For Animations
         veriticalVelcity = thisBody.velocity.y;
         thisRotation = transform.rotation.eulerAngles;
 
@@ -182,7 +199,14 @@ public class PlayerController : MonoBehaviour
             else { grabJumpDirection = Vector2.zero; }
         }
 
-        //Restore the amount of jumps
+        //Set push force direction
+        if (currentMovementState == MovementState.GRAB)
+        {
+            if (thisRotation.y == 0) { shoulderPushForceDirection = new Vector2(tempShoulderPushDirection.x, tempShoulderPushDirection.y); }
+            else { shoulderPushForceDirection = new Vector2(-tempShoulderPushDirection.x, tempShoulderPushDirection.y); }
+        }
+
+        //Maintain the jump count
         if (groundCheckRealtime)
         {
             jumpsLeft = numberOfJumps;
@@ -250,8 +274,6 @@ public class PlayerController : MonoBehaviour
 
     private void GroundCheck()
     {
-        groundCheckRealtime = Physics2D.OverlapBox(foot.position, footSize, 0, groundMask);
-
         if (groundCheckRealtime == false && groundCheck == true && coyoteEnabled == false)
         {
             groundCheckTimer = coyoteTime;
@@ -401,33 +423,19 @@ public class PlayerController : MonoBehaviour
 
     private void GrabMechanism()
     {
-        canGrab = Physics2D.OverlapBox(hand.position, handSize, 0, grabMask);
-
-        //Ckeck if player is close enough to a wall to grab it
-        if (canGrab)
+        //Ckeck if player is close enough to a wall to grab it else release
+        if (handCheckRealtime == true && shoulderCheckRealtime == true)
         {
-            //If the player has stamina then allow the grab
+            //Check if the player has stamina to allow the grab, else release
             if (currentStamina > 0)
             {
-                //Grab
-                if (Keyboard.current.zKey.isPressed)
-                {
-                    SetGrab(true);
-                }
-                else
-                {
-                    SetGrab(false);
-                }
+                //Check if grab key is pressed else release
+                if (Keyboard.current.zKey.isPressed) { SetGrab(true); }
+                else { SetGrab(false); }
             }
-            else
-            {
-                SetGrab(false);
-            }
+            else { SetGrab(false); }
         }
-        else
-        {
-            SetGrab(false);
-        }
+        else { SetGrab(false); }
     }
 
     private void SetGrab(bool value)
@@ -472,5 +480,6 @@ public class PlayerController : MonoBehaviour
     {
         if (footVisualization == true) Gizmos.DrawCube(foot.position, footSize);
         if (handVisualization == true) Gizmos.DrawCube(hand.position, handSize);
+        if (handVisualization == true) Gizmos.DrawCube(shoulder.position, shoulderSize);
     }
 }

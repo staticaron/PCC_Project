@@ -68587,11 +68587,11 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 412553442}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.75, y: -0.25, z: 0}
+  m_LocalPosition: {x: 0.75, y: -0.146, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2094640163}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &428125001
 GameObject:
@@ -68743,6 +68743,36 @@ Transform:
   m_Children: []
   m_Father: {fileID: 2094640163}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &876271188
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 876271189}
+  m_Layer: 0
+  m_Name: Shoulder
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &876271189
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 876271188}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0.75, y: -0.69, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 2094640163}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1251095938
 GameObject:
@@ -72881,7 +72911,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 2094640163}
-  m_RootOrder: 3
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: -180, y: 90, z: 0}
 --- !u!199 &1698594111
 ParticleSystemRenderer:
@@ -77650,6 +77680,7 @@ Transform:
   m_Children:
   - {fileID: 604684265}
   - {fileID: 1528999029}
+  - {fileID: 876271189}
   - {fileID: 412553443}
   - {fileID: 1698594110}
   m_Father: {fileID: 0}
@@ -77777,6 +77808,21 @@ MonoBehaviour:
   moveSpeed: 10
   groundCheck: 0
   groundCheckRealtime: 1
+  shoulderCheckRealtime: 0
+  foot: {fileID: 604684265}
+  footSize: {x: 1, y: 0.5}
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  footVisualization: 0
+  hand: {fileID: 412553443}
+  shoulder: {fileID: 876271189}
+  handSize: {x: 0.5, y: 0.8}
+  shoulderSize: {x: 0.5, y: 0.1}
+  grabMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  handVisualization: 1
   overallGravityModifier: 1
   fallGravityModifier: 10
   jumpGravityModifier: 4
@@ -77784,15 +77830,9 @@ MonoBehaviour:
   landDrag: 0
   dashDrag: 5
   grabDrag: 8
-  foot: {fileID: 604684265}
-  footSize: {x: 1, y: 0.5}
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 1024
   coyoteTime: 0.2
   groundCheckTimer: 0
   coyoteEnabled: 0
-  footVisualization: 0
   numberOfJumps: 2
   jumpsLeft: 0
   jumpForce: 20
@@ -77806,18 +77846,14 @@ MonoBehaviour:
   climbJumpForceModifier: 2
   grabMovementModifier: 0.1
   isGrabbing: 0
-  canGrab: 0
-  hand: {fileID: 412553443}
-  handSize: {x: 0.5, y: 1}
-  grabMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  handVisualization: 1
+  handCheckRealtime: 0
   staminaConsumptionOnHold: 1
   staminaConsumptionOnClimb: 2
   staminaConsumptionOnClimbJump: 50
   grabJumpDirection: {x: 0, y: 0}
   tempGrabJumpDirection: {x: 1, y: 0.5}
+  shoulderPushForceDirection: {x: 0, y: 0}
+  tempShoulderPushDirection: {x: 10, y: 10}
 --- !u!95 &2094640168
 Animator:
   serializedVersion: 3
