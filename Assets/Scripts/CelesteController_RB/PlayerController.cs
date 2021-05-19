@@ -110,6 +110,7 @@ public class PlayerController : MonoBehaviour
         thisBody = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
         circleCollider = GetComponent<CircleCollider2D>();
+
     }
 
     private void OnEnable()
