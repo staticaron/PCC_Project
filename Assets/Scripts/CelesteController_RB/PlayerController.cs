@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,27 +26,29 @@ public class PlayerController : MonoBehaviour
     //Basically needed for animations to work
     [HideInInspector] public float veriticalVelcity;
 
-    [Header("Actions")]
-    [SerializeField] private bool runEnabled, jumpEnabled, dashEnabled, grabEnabled;
+    [Header("Actions-----------------------------------------")]
+    [SerializeField] private bool runEnabled;
+    [SerializeField] private bool jumpEnabled;
+    [SerializeField] private bool dashEnabled;
+    [SerializeField] private bool grabEnabled;
 
     //General Properties
-    [Header("General Properties")]
+    [Header("General Properties-----------------------------------------")]
     [SerializeField] private bool isControllable;
     [SerializeField] private float moveSpeed = 10;
-    [SerializeField] private float jumpForce = 20;
 
-    [Header("Checkers")]
+    [Header("Checkers-----------------------------------------")]
     [SerializeField] private bool groundCheck;
     //GroundCheck = GroundCheckRealtime + coyotiness
     [HideInInspector] public bool groundCheckRealtime;
 
-    [Header("Gravity Values")]
+    [Header("Gravity Values-----------------------------------------")]
     [SerializeField] private float overallGravityModifier = 1;
     [SerializeField] private float fallGravityModifier = 10;
     [SerializeField] private float jumpGravityModifier = 4;
     [SerializeField] private float airDrag = 1, landDrag = 0, dashDrag = 5, grabDrag = 8;
 
-    [Header("Coyote Values")]
+    [Header("Coyote Values-----------------------------------------")]
     [SerializeField] private Transform foot;
     [SerializeField] private Vector2 footSize = new Vector2(1, 0.5f);
     [SerializeField] private LayerMask groundMask;
@@ -55,7 +57,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool coyoteEnabled;
     [SerializeField] private bool footVisualization;
 
-    [Header("Dash Values")]
+    [Header("Jump Values-----------------------------------------")]
+    [SerializeField] private int numberOfJumps = 1;
+    private int jumpsLeft;
+    [SerializeField] private float jumpForce = 20;
+
+
+    [Header("Dash Values-----------------------------------------")]
     [Tooltip("Number of dashes allowed without touching the ground")]
     [SerializeField] private int numberOfDashes = 1;
     private int dashesLeft;
@@ -67,11 +75,10 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The time less than the dash recover time by which controls are enabled so as to line up the landing")]
     [SerializeField] private float preDashRecoverTime = 0.1f;
     [Tooltip("Time offset between the key press and direction set")]
-    [SerializeField] private float dashTimeOffset = 0.2f;
-    private float dashTimer;
     [SerializeField] private bool canDash;
 
-    [Header("Grab Values")]
+    [Header("Grab Values-----------------------------------------")]
+    [SerializeField] private bool grabInput = false;                            //Checks whether grab key was pressed
     [SerializeField] private int maxStamina = 300;
     private int currentStamina;
     [Tooltip("Changes the force applied while climb jumping")]
@@ -87,6 +94,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int staminaConsumptionOnClimb = 5;          //Stamina that is consumed per frame while climb climbing
     [SerializeField] private int staminaConsumptionOnClimbJump = 50;     //Stamina that is consumed per frame while climb jumping
     [SerializeField] private Vector2 grabJumpDirection;
+    [SerializeField] private Vector2 tempGrabJumpDirection;
 
     //Colliders
     private BoxCollider2D boxCollider;
@@ -105,6 +113,8 @@ public class PlayerController : MonoBehaviour
         thisBody = GetComponent<Rigidbody2D>();
         boxCollider = GetComponent<BoxCollider2D>();
         circleCollider = GetComponent<CircleCollider2D>();
+
+        //Link the input system to the resprective fucntions
     }
 
     private void OnEnable()
@@ -123,7 +133,6 @@ public class PlayerController : MonoBehaviour
 
         GrabInput();
     }
-
 
     private void FixedUpdate()
     {
@@ -163,11 +172,16 @@ public class PlayerController : MonoBehaviour
         //Set Grab Jump Direction
         if (currentMovementState == MovementState.GRAB)
         {
-            if (thisRotation.y == 0 && inputX < 0) { grabJumpDirection = (new Vector2(-1, 1).normalized); }
-            else if (thisRotation.y == 180 && inputX > 0) { grabJumpDirection = (new Vector2(1, 1).normalized); }
+            if (thisRotation.y == 0 && inputX < 0) { grabJumpDirection = (new Vector2(-tempGrabJumpDirection.x, grabJumpDirection.y).normalized); }
+            else if (thisRotation.y == 180 && inputX > 0) { grabJumpDirection = (new Vector2(tempGrabJumpDirection.x, tempGrabJumpDirection.y).normalized); }
             else { grabJumpDirection = Vector2.zero; }
         }
 
+        //Restore the amount of jumps
+        if (groundCheckRealtime)
+        {
+            jumpsLeft = numberOfJumps;
+        }
     }
 
     private void GrabInput()
@@ -187,27 +201,30 @@ public class PlayerController : MonoBehaviour
     {
         if (currentMovementState == MovementState.SIMPLE)
         {
-            if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame)
+            if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
             {
                 thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                jumpsLeft -= 1;
             }
         }
         else if (currentMovementState == MovementState.GRAB)
         {
             if (grabJumpDirection != Vector2.zero)
             {
-                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
+                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
                 {
                     thisBody.velocity = new Vector2(grabJumpDirection.x * jumpForce * climbJumpModifier, grabJumpDirection.y * jumpForce * climbJumpModifier);
                     currentGrabState = GrabStates.CLIMBJUMP;
+                    jumpsLeft -= 1;
                 }
             }
             else
             {
-                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
+                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
                 {
                     thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
                     currentGrabState = GrabStates.CLIMBJUMP;
+                    jumpsLeft -= 1;
                 }
             }
         }
@@ -284,23 +301,14 @@ public class PlayerController : MonoBehaviour
 
     private void Dash()
     {
-        //Take Dash Input and stores it in dash timer, dash timer allows some room for the player in case direction was set later than pressing the dash key
-        if (Keyboard.current.xKey.wasPressedThisFrame && canDash == true)
-        {
-            dashTimer = dashTimeOffset;
-        }
-        else
-        {
-            dashTimer -= Time.deltaTime;
-        }
+        if (canDash == false) return;
 
         //Apply dash time spent since the dash key was pressed is less than the dash time
-        if (dashTimer > 0 && currentMovementState != MovementState.DASH)
+        if (Keyboard.current.xKey.wasPressedThisFrame && currentMovementState != MovementState.DASH)
         {
-            if (dashVector == Vector2.zero) return;
-
             currentMovementState = MovementState.DASH;
 
+            //Apply Dash Restrictions
             if (dashVector == new Vector2(1 * dashForce, 0) || dashVector == new Vector2(-1 * dashForce, 0))
             {
                 //If dashing sideways then overall gravity acting on the player should be zero to give a uncontrolled situation.
