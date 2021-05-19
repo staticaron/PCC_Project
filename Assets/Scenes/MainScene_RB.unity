@@ -77794,16 +77794,16 @@ MonoBehaviour:
   coyoteEnabled: 0
   footVisualization: 0
   numberOfJumps: 2
+  jumpsLeft: 0
   jumpForce: 20
-  numberOfDashes: 2
+  numberOfDashes: 1
   dashForce: 3000
   dashVector: {x: -1, y: 0}
   dashRecoverTime: 0.3
   preDashRecoverTime: 0.1
-  dashTimeOffset: 0.2
   canDash: 1
   maxStamina: 300
-  climbJumpModifier: 2
+  climbJumpForceModifier: 2
   grabMovementModifier: 0.1
   isGrabbing: 0
   canGrab: 0
@@ -77817,6 +77817,7 @@ MonoBehaviour:
   staminaConsumptionOnClimb: 2
   staminaConsumptionOnClimbJump: 50
   grabJumpDirection: {x: 0, y: 0}
+  tempGrabJumpDirection: {x: 1, y: 0.5}
 --- !u!95 &2094640168
 Animator:
   serializedVersion: 3
