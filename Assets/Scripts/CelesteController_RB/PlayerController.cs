@@ -464,6 +464,7 @@ public class PlayerController : MonoBehaviour
             //Raise Event
             if (EGrabbed != null) EGrabbed(false);
 
+
             currentMovementState = MovementState.SIMPLE;
         }
     }
