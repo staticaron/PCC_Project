@@ -27,12 +27,11 @@ public class PlayerController : MonoBehaviour
     public static event Jumped EJumped;
 
     //The keyboard inputs for the specified axis
-    [HideInInspector] public float inputX;
-    [HideInInspector] public float inputY;
+    [Header("Input Values")]
+    public float inputX;
+    public float inputY;
     private Vector2 thisRotation;
-
-    //Basically needed for animations to work
-    [HideInInspector] public float veriticalVelcity;
+    public Vector2 thisVelocity;
 
     [Header("Actions------------------------------------------------------------------------------")]
     [SerializeField] private bool runEnabled;
@@ -180,7 +179,7 @@ public class PlayerController : MonoBehaviour
         handCheckRealtime = Physics2D.OverlapBox(hand.position, handSize, 0, grabMask);
 
         //For Animations
-        veriticalVelcity = thisBody.velocity.y;
+        thisVelocity = thisBody.velocity;
         thisRotation = transform.rotation.eulerAngles;
 
         //Set Dash Vector based on user input
@@ -224,6 +223,7 @@ public class PlayerController : MonoBehaviour
         if (isControllable == false) return;
 
         thisBody.velocity = new Vector2(inputX * moveSpeed, thisBody.velocity.y);
+        Debug.Log(thisBody.velocity);
     }
 
     private void JumpMechanism()
@@ -424,18 +424,14 @@ public class PlayerController : MonoBehaviour
     private void GrabMechanism()
     {
         //Ckeck if player is close enough to a wall to grab it else release
-        if (handCheckRealtime == true && shoulderCheckRealtime == true)
+        if (handCheckRealtime == true && shoulderCheckRealtime == true && Keyboard.current.zKey.isPressed && currentStamina > 0)
         {
-            //Check if the player has stamina to allow the grab, else release
-            if (currentStamina > 0)
-            {
-                //Check if grab key is pressed else release
-                if (Keyboard.current.zKey.isPressed) { SetGrab(true); }
-                else { SetGrab(false); }
-            }
-            else { SetGrab(false); }
+            SetGrab(true);
         }
-        else { SetGrab(false); }
+        else
+        {
+            SetGrab(false);
+        }
     }
 
     private void SetGrab(bool value)
@@ -446,7 +442,7 @@ public class PlayerController : MonoBehaviour
             if (inputY == 0) { currentGrabState = GrabStates.HOLD; }
             else { currentGrabState = GrabStates.CLIMB; }
 
-            //Grabbing
+            //Grabbing and climbing
             isControllable = false;
             isGrabbing = true;
             overallGravityModifier = 0;
