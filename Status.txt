@@ -1,8 +1,9 @@
-2. Add : Multiple Dashes
-3. Add : Multiple Jumps
 4. Add : Crouch
 5. Add : Momentum System
-6. Add : Dash upward while grabbing high speed
-7: Add : Round off the the strict collision
+6. Fix : Dash upward while grabbing high speed
+8: Add : A Actual Celeste Level to play
 
 (Done) 1. Add : Bools to disable a particular component(s)
+(Done) 2. Add : Multiple Dashes
+(Done) 3. Add : Multiple Jumps
+(Done) 7: Add : Round off the the strict collision
