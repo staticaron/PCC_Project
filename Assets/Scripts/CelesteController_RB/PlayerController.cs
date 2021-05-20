@@ -424,18 +424,12 @@ public class PlayerController : MonoBehaviour
     private void GrabMechanism()
     {
         //Ckeck if player is close enough to a wall to grab it else release
-        if (handCheckRealtime == true && shoulderCheckRealtime == true)
+        if (handCheckRealtime == true && shoulderCheckRealtime == true && Keyboard.current.zKey.isPressed && currentStamina > 0)
         {
-            //Check if the player has stamina to allow the grab, else release
-            if (currentStamina > 0)
-            {
-                //Check if grab key is pressed else release
-                if (Keyboard.current.zKey.isPressed) { SetGrab(true); }
-                else { SetGrab(false); }
-            }
-            else { SetGrab(false); }
+            SetGrab(true);
         }
         else { SetGrab(false); }
+
     }
 
     private void SetGrab(bool value)

@@ -77829,7 +77829,7 @@ MonoBehaviour:
   airDrag: 1
   landDrag: 0
   dashDrag: 5
-  grabDrag: 8
+  grabDrag: 15
   coyoteTime: 0.2
   groundCheckTimer: 0
   coyoteEnabled: 0
@@ -77844,7 +77844,7 @@ MonoBehaviour:
   canDash: 1
   maxStamina: 300
   climbJumpForceModifier: 2
-  grabMovementModifier: 0.1
+  grabMovementModifier: 0.2
   isGrabbing: 0
   handCheckRealtime: 0
   staminaConsumptionOnHold: 1
