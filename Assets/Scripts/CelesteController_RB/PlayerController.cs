@@ -395,6 +395,7 @@ public class PlayerController : MonoBehaviour
         //Restore the colliders to original state
         boxCollider.enabled = true;
         circleCollider.enabled = false;
+
     }
 
     private void CalculateStamina(GrabStates grabState)
