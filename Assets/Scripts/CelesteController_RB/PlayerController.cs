@@ -389,6 +389,7 @@ public class PlayerController : MonoBehaviour
         //If another state was set before the dash is cancelled then dont set the simple state and let the current state be whatever it is
         if (currentMovementState == MovementState.DASH) currentMovementState = MovementState.SIMPLE;
 
+
         if (EDashed != null) { EDashed(false); }
 
         //Restore the colliders to original state
