@@ -5048,21 +5048,29 @@ MonoBehaviour:
   currentGrabState: 3
   inputX: 0
   inputY: 0
-  veriticalVelcity: 0
+  thisVelocity: {x: 0, y: 0}
   runEnabled: 1
   jumpEnabled: 1
   dashEnabled: 1
   grabEnabled: 1
+  movableColliders: 1
   isControllable: 1
   moveSpeed: 10
+  horizontalVelocityToSet: 0
   groundCheck: 0
   groundCheckRealtime: 1
   shoulderCheckRealtime: 0
+  movableCheckFoot: 0
+  movableCheckHand: 0
   foot: {fileID: 4327160911110871432}
   footSize: {x: 1, y: 0.5}
   groundMask:
     serializedVersion: 2
     m_Bits: 1024
+  movableObjectMask:
+    serializedVersion: 2
+    m_Bits: 2048
+  movableColliderBelow: {fileID: 0}
   footVisualization: 0
   hand: {fileID: 4327160911034168962}
   shoulder: {fileID: 4327160911376183348}
@@ -5070,7 +5078,8 @@ MonoBehaviour:
   shoulderSize: {x: 0.5, y: 0.1}
   grabMask:
     serializedVersion: 2
-    m_Bits: 1024
+    m_Bits: 3072
+  movableColliderSide: {fileID: 0}
   handVisualization: 1
   overallGravityModifier: 1
   fallGravityModifier: 10

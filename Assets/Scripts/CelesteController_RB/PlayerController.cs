@@ -38,22 +38,31 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool jumpEnabled;
     [SerializeField] private bool dashEnabled;
     [SerializeField] private bool grabEnabled;
+    [Tooltip("Turn on to enable move with movable objects")]
+    [SerializeField] private bool movableColliders;
 
     //General Properties
     [Header("General Properties------------------------------------------------------------------------------")]
     [SerializeField] private bool isControllable;
     [SerializeField] private float moveSpeed = 10;
+    [SerializeField] private float horizontalVelocityToSet;
 
     [Header("Checkers------------------------------------------------------------------------------")]
     [SerializeField] private bool groundCheck;
     //GroundCheck = GroundCheckRealtime + coyotiness
     [SerializeField] public bool groundCheckRealtime;
     [SerializeField] private bool shoulderCheckRealtime;
+    [SerializeField] private bool movableCheckFoot;
+    [SerializeField] private bool movableCheckHand;
 
     [Header("Foot Properties------------------------------------------------------------------------------")]
     [SerializeField] private Transform foot;
     [SerializeField] private Vector2 footSize = new Vector2(1, 0.5f);
     [SerializeField] private LayerMask groundMask;
+    [Tooltip("Checks whether the object below belongs to the movable objects ( Not applicable if movable object interaction is turned off)")]
+    [SerializeField] private LayerMask movableObjectMask;
+    [Tooltip("Stores the Movable Object if there is any")]
+    [SerializeField] private Collider2D movableColliderBelow;
     [SerializeField] private bool footVisualization;
 
 
@@ -64,6 +73,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Vector2 shoulderSize = new Vector2(.5f, 1);
     [Tooltip("Objects in this layer can be grabbed")]
     [SerializeField] private LayerMask grabMask;
+    [SerializeField] private Collider2D movableColliderSide;
     [SerializeField] private bool handVisualization;
 
     [Header("Gravity Values------------------------------------------------------------------------------")]
@@ -147,11 +157,12 @@ public class PlayerController : MonoBehaviour
         SetValues();
 
         GrabInput();
+
+        ApplyMovableGroundForce();
     }
 
     private void FixedUpdate()
     {
-
         if (runEnabled) SetHorizontalVelocity();
 
         GroundCheck();
@@ -173,8 +184,26 @@ public class PlayerController : MonoBehaviour
 
     private void SetValues()
     {
-        //Do checks
+        //Do checks for ground and movable objects
         groundCheckRealtime = Physics2D.OverlapBox(foot.position, footSize, 0, groundMask);
+        var movableCastFoot = Physics2D.OverlapBox(foot.position, footSize, 0, movableObjectMask);
+        var movableCastHand = Physics2D.OverlapBox(hand.position, handSize, 0, movableObjectMask);
+
+        if (movableColliders)
+        {
+            movableCheckFoot = (bool)movableCastFoot;
+            movableCheckHand = (bool)movableCastHand;
+        }
+
+        //Get the movable collider if standing on / holding one
+        if (movableCheckFoot || movableCheckHand)
+        {
+            movableColliderBelow = (Collider2D)movableCastFoot;
+            movableColliderSide = (Collider2D)movableCastHand;
+        }
+        else { movableColliderBelow = null; movableColliderSide = null; }
+
+        //groundCheckRealtime = Physics2D.OverlapBox(foot.position, footSize, 0, groundMask);
         shoulderCheckRealtime = Physics2D.OverlapBox(shoulder.position, shoulderSize, 0, grabMask);
         handCheckRealtime = Physics2D.OverlapBox(hand.position, handSize, 0, grabMask);
 
@@ -206,7 +235,7 @@ public class PlayerController : MonoBehaviour
         }
 
         //Maintain the jump count
-        if (groundCheckRealtime)
+        if (groundCheckRealtime || movableCheckFoot)
         {
             jumpsLeft = numberOfJumps;
         }
@@ -222,7 +251,26 @@ public class PlayerController : MonoBehaviour
     {
         if (isControllable == false) return;
 
-        thisBody.velocity = new Vector2(inputX * moveSpeed, thisBody.velocity.y);
+        horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed;
+        thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
+    }
+
+    private void ApplyMovableGroundForce()
+    {
+        if (movableCheckFoot)
+        {
+            float movementSpeedOfMovableObject = movableColliderBelow.GetComponent<Rigidbody2D>().velocity.x;
+            horizontalVelocityToSet = movementSpeedOfMovableObject;
+        }
+        else if (movableCheckHand)
+        {
+            float movementSpeedOfMovableObject = movableColliderSide.GetComponent<Rigidbody2D>().velocity.x;
+            horizontalVelocityToSet = movementSpeedOfMovableObject;
+        }
+        else
+        {
+            horizontalVelocityToSet = 0;
+        }
     }
 
     private void JumpMechanism()
@@ -230,6 +278,11 @@ public class PlayerController : MonoBehaviour
         if (currentMovementState == MovementState.SIMPLE)
         {
             if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
+            {
+                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                jumpsLeft -= 1;
+            }
+            else if (movableCheckFoot == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
             {
                 thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
                 jumpsLeft -= 1;
@@ -319,7 +372,7 @@ public class PlayerController : MonoBehaviour
 
     public void SetDash()
     {
-        if (groundCheckRealtime == true)
+        if (groundCheckRealtime == true || movableCheckFoot == true)
         {
             canDash = true;
             dashesLeft = numberOfDashes;
