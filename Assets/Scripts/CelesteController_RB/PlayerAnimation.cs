@@ -47,7 +47,7 @@ public class PlayerAnimation : MonoBehaviour
 
     private void SetVerticalMovementAndGroundCheckValues()
     {
-        int verticalMovement = (int)playerController.veriticalVelcity;
+        int verticalMovement = (int)playerController.thisVelocity.y;
         bool groundCheckValue = playerController.groundCheckRealtime;
 
         animator.SetBool("IsGrounded", groundCheckValue);
