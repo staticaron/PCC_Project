@@ -132,6 +132,18 @@ public class PlayerController : MonoBehaviour
 
     #endregion
 
+    [ContextMenu("SLow Motion")]
+    public void SlowDownGameplay()
+    {
+        Time.timeScale = 0.2f;
+    }
+
+    [ContextMenu("Normal Gameplay")]
+    public void NormalGameplay()
+    {
+        Time.timeScale = 1;
+    }
+
     private void Awake()
     {
         //Initialize variables
@@ -262,7 +274,7 @@ public class PlayerController : MonoBehaviour
             float movementSpeedOfMovableObject = movableColliderBelow.GetComponent<Rigidbody2D>().velocity.x;
             horizontalVelocityToSet = movementSpeedOfMovableObject;
         }
-        else if (movableCheckHand)
+        else if (movableCheckHand && isGrabbing)
         {
             float movementSpeedOfMovableObject = movableColliderSide.GetComponent<Rigidbody2D>().velocity.x;
             horizontalVelocityToSet = movementSpeedOfMovableObject;
