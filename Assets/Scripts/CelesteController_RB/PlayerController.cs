@@ -140,6 +140,7 @@ public class PlayerController : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
         circleCollider = GetComponent<CircleCollider2D>();
 
+        UnityEngine.Application.targetFrameRate = 60;
     }
 
     private void OnEnable()
@@ -250,11 +251,20 @@ public class PlayerController : MonoBehaviour
 
     private void SetHorizontalVelocity()
     {
-        if (isControllable == false) return;
+        /*<Summary>
+        If controllable then the velocity is determined by the velocity of the object below and the input
+        If not controllable then the velocity is determined by the state .i.e if dashing then all the input are disabled for that time
+        and if grabing then the velocity is just set by the object that is being grabbed at that moment
+        </Summary>*/
 
-        horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed;
+        if (isControllable == true) { horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed; }
+        else
+        {
+            if (currentMovementState == MovementState.DASH) return;
+            //Note : there is no condition for grab state because in grab state, there is no effect of input on the velocity, so leave the velocityToSet as is
+        }
+
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
-        Debug.Log(thisBody.velocity.x);
     }
 
     private void ApplyMovableGroundForce()
@@ -264,7 +274,7 @@ public class PlayerController : MonoBehaviour
             float movementSpeedOfMovableObject = movableColliderBelow.GetComponent<Rigidbody2D>().velocity.x;
             horizontalVelocityToSet = movementSpeedOfMovableObject;
         }
-        else if (movableCheckHand)
+        else if (movableCheckHand && isGrabbing)
         {
             float movementSpeedOfMovableObject = movableColliderSide.GetComponent<Rigidbody2D>().velocity.x;
             horizontalVelocityToSet = movementSpeedOfMovableObject;
@@ -316,6 +326,9 @@ public class PlayerController : MonoBehaviour
 
     private void RemoveFloatyness()
     {
+        //Whats the point of removing floatyness when not jumping
+        if (currentMovementState != MovementState.SIMPLE) return;
+
         if (thisBody.velocity.y <= 0)
         {
             thisBody.gravityScale = fallGravityModifier * overallGravityModifier;
@@ -351,7 +364,8 @@ public class PlayerController : MonoBehaviour
     {
         if (currentMovementState == MovementState.SIMPLE)
         {
-            if (groundCheckRealtime == true || movableCheckFoot == true)
+            //If stading on (ground or on any movable object) or grabbing the movable object then apply no drag i.e apply land drag
+            if (groundCheckRealtime == true || movableCheckFoot == true || movableCheckHand == true)
             {
                 thisBody.drag = landDrag;
             }

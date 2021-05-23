@@ -5098,10 +5098,10 @@ MonoBehaviour:
   dashForce: 3000
   dashVector: {x: -1, y: 0}
   dashRecoverTime: 0.3
-  preDashRecoverTime: 0.1
+  preDashRecoverTime: 0.2
   canDash: 1
   maxStamina: 300
-  climbJumpForceModifier: 2
+  climbJumpForceModifier: 3
   grabMovementModifier: 0.2
   isGrabbing: 0
   handCheckRealtime: 0
