@@ -1,9 +1,14 @@
 4. Add : Crouch
 5. Add : Momentum System
-6. Fix : Dash upward while grabbing high speed
 8: Add : A Actual Celeste Level to play
+10: Fix : Small Moving platform climb jump high speed
+11: Add: Animations Events
+12: Add : Intergration with the new input System
+
 
 (Done) 1. Add : Bools to disable a particular component(s)
 (Done) 2. Add : Multiple Dashes
 (Done) 3. Add : Multiple Jumps
+(Done) 6. Fix : Dash upward while grabbing high speed
 (Done) 7: Add : Round off the the strict collision
+(Done) 9: Add : Grab the Moving Objects
