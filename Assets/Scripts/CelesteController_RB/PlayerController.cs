@@ -226,6 +226,7 @@ public class PlayerController : MonoBehaviour
             if (thisRotation.y == 0 && inputX < 0) { grabJumpDirection = (new Vector2(-tempGrabJumpDirection.x, tempGrabJumpDirection.y).normalized); }
             else if (thisRotation.y == 180 && inputX > 0) { grabJumpDirection = (new Vector2(tempGrabJumpDirection.x, tempGrabJumpDirection.y).normalized); }
             else { grabJumpDirection = Vector2.zero; }
+
         }
 
         //Set push force direction
@@ -254,7 +255,6 @@ public class PlayerController : MonoBehaviour
 
         horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed;
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
-        Debug.Log(thisBody.velocity.x);
     }
 
     private void ApplyMovableGroundForce()
