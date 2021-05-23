@@ -251,6 +251,7 @@ public class PlayerController : MonoBehaviour
     {
         if (isControllable == false) return;
 
+
         horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed;
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
