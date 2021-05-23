@@ -158,11 +158,12 @@ public class PlayerController : MonoBehaviour
 
         GrabInput();
 
-        ApplyMovableGroundForce();
     }
 
     private void FixedUpdate()
     {
+        ApplyMovableGroundForce();
+
         if (runEnabled) SetHorizontalVelocity();
 
         GroundCheck();
@@ -253,6 +254,7 @@ public class PlayerController : MonoBehaviour
 
         horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed;
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
+        Debug.Log(thisBody.velocity.x);
     }
 
     private void ApplyMovableGroundForce()
@@ -349,7 +351,7 @@ public class PlayerController : MonoBehaviour
     {
         if (currentMovementState == MovementState.SIMPLE)
         {
-            if (groundCheckRealtime == true)
+            if (groundCheckRealtime == true || movableCheckFoot == true)
             {
                 thisBody.drag = landDrag;
             }

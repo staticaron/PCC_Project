@@ -4,6 +4,7 @@ public class MovingPlatform : MonoBehaviour
 {
     [SerializeField] private Vector2 minMaxX;
     [SerializeField] private float moveSpeed;
+    [SerializeField] private float movingWithSpeed;
     private Rigidbody2D thisBody;
     private int multiplier = 1;
 
@@ -24,5 +25,6 @@ public class MovingPlatform : MonoBehaviour
         }
 
         thisBody.velocity = new Vector2(moveSpeed * multiplier, 0);
+        movingWithSpeed = thisBody.velocity.x;
     }
 }
