@@ -5087,7 +5087,7 @@ MonoBehaviour:
   airDrag: 1
   landDrag: 0
   dashDrag: 5
-  grabDrag: 15
+  grabDrag: 0
   coyoteTime: 0.2
   groundCheckTimer: 0
   coyoteEnabled: 0
@@ -5101,7 +5101,8 @@ MonoBehaviour:
   preDashRecoverTime: 0.1
   canDash: 1
   maxStamina: 300
-  climbJumpForceModifier: 2
+  climbJumpForceVertical: 1000
+  climbJumpForceAngled: 100
   grabMovementModifier: 0.2
   isGrabbing: 0
   handCheckRealtime: 0

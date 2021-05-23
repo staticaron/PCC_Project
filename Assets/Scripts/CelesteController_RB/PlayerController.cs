@@ -110,8 +110,10 @@ public class PlayerController : MonoBehaviour
     [Header("Grab Values------------------------------------------------------------------------------")]
     [SerializeField] private int maxStamina = 300;
     private int currentStamina;
-    [Tooltip("Changes the force applied while climb jumping (1 means same force as the jumpforce)")]
-    [SerializeField] private float climbJumpForceModifier = 1;
+    [Tooltip("Force added vertically for climbing")]
+    [SerializeField] private float climbJumpForceVertical = 70;
+    [Tooltip("The force added when jumped against the wall")]
+    [SerializeField] private float climbJumpForceAngled = 70;
     [Tooltip("Changes the speed of climbing (1 means same speed as moveSpeed)")]
     [SerializeField] private float grabMovementModifier = 0.3f;
     [SerializeField] private bool isGrabbing;
@@ -251,9 +253,12 @@ public class PlayerController : MonoBehaviour
 
     private void SetHorizontalVelocity()
     {
-        if (isControllable == false) return;
+        if (isControllable == true) { horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed; }
+        else
+        {
+            if (currentMovementState == MovementState.DASH) { return; }
+        }
 
-        horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed;
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
 
@@ -296,16 +301,17 @@ public class PlayerController : MonoBehaviour
             {
                 if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
                 {
-                    thisBody.velocity = new Vector2(grabJumpDirection.x * jumpForce * climbJumpForceModifier, grabJumpDirection.y * jumpForce * climbJumpForceModifier);
+                    thisBody.velocity = new Vector2(grabJumpDirection.x * climbJumpForceAngled, grabJumpDirection.y * climbJumpForceAngled);
                     currentGrabState = GrabStates.CLIMBJUMP;
                     jumpsLeft -= 1;
+
                 }
             }
             else
             {
                 if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
                 {
-                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                    thisBody.velocity = new Vector2(thisBody.velocity.x, climbJumpForceVertical);
                     currentGrabState = GrabStates.CLIMBJUMP;
                 }
             }
@@ -363,6 +369,10 @@ public class PlayerController : MonoBehaviour
         else if (currentMovementState == MovementState.DASH)
         {
             thisBody.drag = dashDrag;
+        }
+        else if (currentMovementState == MovementState.GRAB)
+        {
+            thisBody.velocity = new Vector2(thisBody.velocity.x, thisVelocity.y - thisVelocity.y * 0.5f);
         }
     }
 
