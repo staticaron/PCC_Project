@@ -45,7 +45,7 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 {
                     ""name"": ""Dash"",
                     ""type"": ""Value"",
-                    ""id"": ""9cba693d-892c-452a-8fbe-45280514d396"",
+                    ""id"": ""01895777-44c5-49e4-905a-39ff92d0bfa4"",
                     ""expectedControlType"": ""Key"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -106,17 +106,6 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 },
                 {
                     ""name"": """",
-                    ""id"": ""6ed38787-2d0e-44ea-a9da-aeaf9f8ce535"",
-                    ""path"": ""<Keyboard>/x"",
-                    ""interactions"": """",
-                    ""processors"": """",
-                    ""groups"": """",
-                    ""action"": ""Dash"",
-                    ""isComposite"": false,
-                    ""isPartOfComposite"": false
-                },
-                {
-                    ""name"": """",
                     ""id"": ""14557f2a-ebba-414e-84a8-df0c8318af28"",
                     ""path"": ""<Keyboard>/z"",
                     ""interactions"": """",
@@ -158,6 +147,17 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                     ""action"": ""VerticalMovement"",
                     ""isComposite"": false,
                     ""isPartOfComposite"": true
+                },
+                {
+                    ""name"": """",
+                    ""id"": ""304cf9bb-5674-459e-bbea-c69feb427c91"",
+                    ""path"": ""<Keyboard>/x"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": """",
+                    ""action"": ""Dash"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
                 }
             ]
         }

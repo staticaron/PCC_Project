@@ -144,6 +144,7 @@ public class PlayerController : MonoBehaviour
 
         //Bind Functions with the input action map
         playerMovementActionMap.General.Jump.started += ctx => Jump();
+        playerMovementActionMap.General.Dash.started += ctx => Dash();
     }
 
     private void OnEnable()
@@ -177,8 +178,6 @@ public class PlayerController : MonoBehaviour
         RemoveFloatyness();
 
         SetDash();
-
-        if (dashEnabled) Dash();
 
         CalculateStamina(currentGrabState);
 
@@ -396,7 +395,7 @@ public class PlayerController : MonoBehaviour
         if (canDash == false) return;
 
         //Apply dash time spent since the dash key was pressed is less than the dash time
-        if (Keyboard.current.xKey.wasPressedThisFrame && currentMovementState != MovementState.DASH)
+        if (currentMovementState != MovementState.DASH)
         {
             if (dashVector == Vector2.zero) return;
 
