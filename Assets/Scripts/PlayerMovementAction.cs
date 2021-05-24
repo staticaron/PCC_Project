@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/Scripts/PlayerMovement/PlayerMovementAction.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/Scripts/PlayerMovementAction.inputactions'
 
 using System;
 using System.Collections;
@@ -27,8 +27,16 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                     ""interactions"": """"
                 },
                 {
-                    ""name"": ""Jump"",
+                    ""name"": ""VerticalMovement"",
                     ""type"": ""PassThrough"",
+                    ""id"": ""17c98756-7051-4ed0-bd41-ca3898161774"",
+                    ""expectedControlType"": ""Button"",
+                    ""processors"": """",
+                    ""interactions"": """"
+                },
+                {
+                    ""name"": ""Jump"",
+                    ""type"": ""Value"",
                     ""id"": ""348b05f9-7a7a-4f1b-85a7-b4e4aadf06b3"",
                     ""expectedControlType"": ""Key"",
                     ""processors"": """",
@@ -36,9 +44,9 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 },
                 {
                     ""name"": ""Dash"",
-                    ""type"": ""Button"",
+                    ""type"": ""Value"",
                     ""id"": ""9cba693d-892c-452a-8fbe-45280514d396"",
-                    ""expectedControlType"": ""Button"",
+                    ""expectedControlType"": ""Key"",
                     ""processors"": """",
                     ""interactions"": """"
                 },
@@ -46,14 +54,6 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                     ""name"": ""Grab"",
                     ""type"": ""Button"",
                     ""id"": ""3b1e94dd-cf20-4b4d-9d08-ee55d65aac37"",
-                    ""expectedControlType"": ""Button"",
-                    ""processors"": """",
-                    ""interactions"": """"
-                },
-                {
-                    ""name"": ""VerticalMovement"",
-                    ""type"": ""PassThrough"",
-                    ""id"": ""17c98756-7051-4ed0-bd41-ca3898161774"",
                     ""expectedControlType"": ""Button"",
                     ""processors"": """",
                     ""interactions"": """"
@@ -96,7 +96,7 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""add42a7d-4549-4fd4-9e47-c20a9c491cb9"",
-                    ""path"": ""<Keyboard>/space"",
+                    ""path"": ""<Keyboard>/c"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -118,7 +118,7 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 {
                     ""name"": """",
                     ""id"": ""14557f2a-ebba-414e-84a8-df0c8318af28"",
-                    ""path"": ""<Keyboard>/c"",
+                    ""path"": ""<Keyboard>/z"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -167,10 +167,10 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
         // General
         m_General = asset.FindActionMap("General", throwIfNotFound: true);
         m_General_Movement = m_General.FindAction("Movement", throwIfNotFound: true);
+        m_General_VerticalMovement = m_General.FindAction("VerticalMovement", throwIfNotFound: true);
         m_General_Jump = m_General.FindAction("Jump", throwIfNotFound: true);
         m_General_Dash = m_General.FindAction("Dash", throwIfNotFound: true);
         m_General_Grab = m_General.FindAction("Grab", throwIfNotFound: true);
-        m_General_VerticalMovement = m_General.FindAction("VerticalMovement", throwIfNotFound: true);
     }
 
     public void Dispose()
@@ -221,19 +221,19 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
     private readonly InputActionMap m_General;
     private IGeneralActions m_GeneralActionsCallbackInterface;
     private readonly InputAction m_General_Movement;
+    private readonly InputAction m_General_VerticalMovement;
     private readonly InputAction m_General_Jump;
     private readonly InputAction m_General_Dash;
     private readonly InputAction m_General_Grab;
-    private readonly InputAction m_General_VerticalMovement;
     public struct GeneralActions
     {
         private @PlayerMovementAction m_Wrapper;
         public GeneralActions(@PlayerMovementAction wrapper) { m_Wrapper = wrapper; }
         public InputAction @Movement => m_Wrapper.m_General_Movement;
+        public InputAction @VerticalMovement => m_Wrapper.m_General_VerticalMovement;
         public InputAction @Jump => m_Wrapper.m_General_Jump;
         public InputAction @Dash => m_Wrapper.m_General_Dash;
         public InputAction @Grab => m_Wrapper.m_General_Grab;
-        public InputAction @VerticalMovement => m_Wrapper.m_General_VerticalMovement;
         public InputActionMap Get() { return m_Wrapper.m_General; }
         public void Enable() { Get().Enable(); }
         public void Disable() { Get().Disable(); }
@@ -246,6 +246,9 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 @Movement.started -= m_Wrapper.m_GeneralActionsCallbackInterface.OnMovement;
                 @Movement.performed -= m_Wrapper.m_GeneralActionsCallbackInterface.OnMovement;
                 @Movement.canceled -= m_Wrapper.m_GeneralActionsCallbackInterface.OnMovement;
+                @VerticalMovement.started -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
+                @VerticalMovement.performed -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
+                @VerticalMovement.canceled -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
                 @Jump.started -= m_Wrapper.m_GeneralActionsCallbackInterface.OnJump;
                 @Jump.performed -= m_Wrapper.m_GeneralActionsCallbackInterface.OnJump;
                 @Jump.canceled -= m_Wrapper.m_GeneralActionsCallbackInterface.OnJump;
@@ -255,9 +258,6 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 @Grab.started -= m_Wrapper.m_GeneralActionsCallbackInterface.OnGrab;
                 @Grab.performed -= m_Wrapper.m_GeneralActionsCallbackInterface.OnGrab;
                 @Grab.canceled -= m_Wrapper.m_GeneralActionsCallbackInterface.OnGrab;
-                @VerticalMovement.started -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
-                @VerticalMovement.performed -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
-                @VerticalMovement.canceled -= m_Wrapper.m_GeneralActionsCallbackInterface.OnVerticalMovement;
             }
             m_Wrapper.m_GeneralActionsCallbackInterface = instance;
             if (instance != null)
@@ -265,6 +265,9 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 @Movement.started += instance.OnMovement;
                 @Movement.performed += instance.OnMovement;
                 @Movement.canceled += instance.OnMovement;
+                @VerticalMovement.started += instance.OnVerticalMovement;
+                @VerticalMovement.performed += instance.OnVerticalMovement;
+                @VerticalMovement.canceled += instance.OnVerticalMovement;
                 @Jump.started += instance.OnJump;
                 @Jump.performed += instance.OnJump;
                 @Jump.canceled += instance.OnJump;
@@ -274,9 +277,6 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
                 @Grab.started += instance.OnGrab;
                 @Grab.performed += instance.OnGrab;
                 @Grab.canceled += instance.OnGrab;
-                @VerticalMovement.started += instance.OnVerticalMovement;
-                @VerticalMovement.performed += instance.OnVerticalMovement;
-                @VerticalMovement.canceled += instance.OnVerticalMovement;
             }
         }
     }
@@ -284,9 +284,9 @@ public class @PlayerMovementAction : IInputActionCollection, IDisposable
     public interface IGeneralActions
     {
         void OnMovement(InputAction.CallbackContext context);
+        void OnVerticalMovement(InputAction.CallbackContext context);
         void OnJump(InputAction.CallbackContext context);
         void OnDash(InputAction.CallbackContext context);
         void OnGrab(InputAction.CallbackContext context);
-        void OnVerticalMovement(InputAction.CallbackContext context);
     }
 }

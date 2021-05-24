@@ -14,8 +14,16 @@
                     "interactions": ""
                 },
                 {
-                    "name": "Jump",
+                    "name": "VerticalMovement",
                     "type": "PassThrough",
+                    "id": "17c98756-7051-4ed0-bd41-ca3898161774",
+                    "expectedControlType": "Button",
+                    "processors": "",
+                    "interactions": ""
+                },
+                {
+                    "name": "Jump",
+                    "type": "Value",
                     "id": "348b05f9-7a7a-4f1b-85a7-b4e4aadf06b3",
                     "expectedControlType": "Key",
                     "processors": "",
@@ -23,9 +31,9 @@
                 },
                 {
                     "name": "Dash",
-                    "type": "Button",
+                    "type": "Value",
                     "id": "9cba693d-892c-452a-8fbe-45280514d396",
-                    "expectedControlType": "Button",
+                    "expectedControlType": "Key",
                     "processors": "",
                     "interactions": ""
                 },
@@ -33,14 +41,6 @@
                     "name": "Grab",
                     "type": "Button",
                     "id": "3b1e94dd-cf20-4b4d-9d08-ee55d65aac37",
-                    "expectedControlType": "Button",
-                    "processors": "",
-                    "interactions": ""
-                },
-                {
-                    "name": "VerticalMovement",
-                    "type": "PassThrough",
-                    "id": "17c98756-7051-4ed0-bd41-ca3898161774",
                     "expectedControlType": "Button",
                     "processors": "",
                     "interactions": ""
@@ -83,7 +83,7 @@
                 {
                     "name": "",
                     "id": "add42a7d-4549-4fd4-9e47-c20a9c491cb9",
-                    "path": "<Keyboard>/space",
+                    "path": "<Keyboard>/c",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -105,7 +105,7 @@
                 {
                     "name": "",
                     "id": "14557f2a-ebba-414e-84a8-df0c8318af28",
-                    "path": "<Keyboard>/c",
+                    "path": "<Keyboard>/z",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

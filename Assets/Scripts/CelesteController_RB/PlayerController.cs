@@ -142,6 +142,8 @@ public class PlayerController : MonoBehaviour
         boxCollider = GetComponent<BoxCollider2D>();
         circleCollider = GetComponent<CircleCollider2D>();
 
+        //Bind Functions with the input action map
+        playerMovementActionMap.General.Jump.started += ctx => Jump();
     }
 
     private void OnEnable()
@@ -171,8 +173,6 @@ public class PlayerController : MonoBehaviour
         GroundCheck();
 
         ApplyDrag();
-
-        if (jumpEnabled) JumpMechanism();
 
         RemoveFloatyness();
 
@@ -280,16 +280,16 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void JumpMechanism()
+    private void Jump()
     {
         if (currentMovementState == MovementState.SIMPLE)
         {
-            if (groundCheck == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
+            if (groundCheck == true && jumpsLeft > 0)
             {
                 thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
                 jumpsLeft -= 1;
             }
-            else if (movableCheckFoot == true && Keyboard.current.cKey.wasPressedThisFrame && jumpsLeft > 0)
+            else if (movableCheckFoot == true && jumpsLeft > 0)
             {
                 thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
                 jumpsLeft -= 1;
@@ -299,7 +299,7 @@ public class PlayerController : MonoBehaviour
         {
             if (grabJumpDirection != Vector2.zero)
             {
-                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
+                if (isGrabbing == true)
                 {
                     thisBody.velocity = new Vector2(grabJumpDirection.x * climbJumpForceAngled, grabJumpDirection.y * climbJumpForceAngled);
                     currentGrabState = GrabStates.CLIMBJUMP;
@@ -309,7 +309,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                if (isGrabbing == true && Keyboard.current.cKey.wasPressedThisFrame)
+                if (isGrabbing == true)
                 {
                     thisBody.velocity = new Vector2(thisBody.velocity.x, climbJumpForceVertical);
                     currentGrabState = GrabStates.CLIMBJUMP;
