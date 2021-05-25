@@ -35,6 +35,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Actions------------------------------------------------------------------------------")]
     [SerializeField] private bool runEnabled;
+    [SerializeField] private bool climbEnabled;
     [SerializeField] private bool jumpEnabled;
     [SerializeField] private bool dashEnabled;
     [SerializeField] private bool grabEnabled;
@@ -43,7 +44,8 @@ public class PlayerController : MonoBehaviour
 
     //General Properties
     [Header("General Properties------------------------------------------------------------------------------")]
-    [SerializeField] private bool isControllable;
+    [SerializeField] private bool isControllableX = true;
+    [SerializeField] private bool isControllableY = false;
     [SerializeField] private float moveSpeed = 10;
     [SerializeField] private float horizontalVelocityToSet;
 
@@ -108,6 +110,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool canDash;
 
     [Header("Grab Values------------------------------------------------------------------------------")]
+    [HideInInspector] private bool grabInput;
     [SerializeField] private int maxStamina = 300;
     private int currentStamina;
     [Tooltip("Force added vertically for climbing")]
@@ -145,6 +148,8 @@ public class PlayerController : MonoBehaviour
         //Bind Functions with the input action map
         playerMovementActionMap.General.Jump.started += ctx => Jump();
         playerMovementActionMap.General.Dash.started += ctx => Dash();
+        playerMovementActionMap.General.Grab.started += ctx => SetGrab(ctx);
+        playerMovementActionMap.General.Grab.canceled += ctx => SetGrab(ctx);
     }
 
     private void OnEnable()
@@ -161,8 +166,7 @@ public class PlayerController : MonoBehaviour
     {
         SetValues();
 
-        GrabInput();
-
+        GetInput();
     }
 
     private void FixedUpdate()
@@ -181,7 +185,7 @@ public class PlayerController : MonoBehaviour
 
         CalculateStamina(currentGrabState);
 
-        if (grabEnabled) GrabMechanism();
+        if (grabEnabled) Grab();
     }
 
     private void SetValues()
@@ -244,7 +248,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void GrabInput()
+    private void GetInput()
     {
         inputX = playerMovementActionMap.General.Movement.ReadValue<float>();
         inputY = playerMovementActionMap.General.VerticalMovement.ReadValue<float>();
@@ -252,7 +256,7 @@ public class PlayerController : MonoBehaviour
 
     private void SetHorizontalVelocity()
     {
-        if (isControllable == true) { horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed; }
+        if (isControllableX == true) { horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed; }
         else
         {
             if (currentMovementState == MovementState.DASH) { return; }
@@ -301,9 +305,8 @@ public class PlayerController : MonoBehaviour
                 if (isGrabbing == true)
                 {
                     thisBody.velocity = new Vector2(grabJumpDirection.x * climbJumpForceAngled, grabJumpDirection.y * climbJumpForceAngled);
-                    currentGrabState = GrabStates.CLIMBJUMP;
+                    currentGrabState = GrabStates.NONE;
                     jumpsLeft -= 1;
-
                 }
             }
             else
@@ -404,14 +407,14 @@ public class PlayerController : MonoBehaviour
             if (dashVector == new Vector2(1 * dashForce, 0) || dashVector == new Vector2(-1 * dashForce, 0))
             {
                 //If dashing sideways then overall gravity acting on the player should be zero to give a uncontrolled situation.
-                isControllable = false;
+                isControllableX = false;
                 thisBody.velocity = Vector2.zero;
                 overallGravityModifier = 0;
             }
             else
             {
                 //If not dashing sideways then overall gravity should be normal as there is no need of uncontrolled situation as it is already is
-                isControllable = false;
+                isControllableX = false;
                 thisBody.velocity = Vector2.zero;
             }
 
@@ -440,7 +443,7 @@ public class PlayerController : MonoBehaviour
         yield return new WaitForSeconds(time);
 
         //Control is given back before the complete dash takes place
-        isControllable = true;
+        isControllableX = true;
     }
 
     private IEnumerator<WaitForSeconds> DashRecover(float time)
@@ -488,20 +491,33 @@ public class PlayerController : MonoBehaviour
         currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
     }
 
-    private void GrabMechanism()
+    private void SetGrab(InputAction.CallbackContext ctx)
     {
-        //Ckeck if player is close enough to a wall to grab it else release
-        if (handCheckRealtime == true && shoulderCheckRealtime == true && Keyboard.current.zKey.isPressed && currentStamina > 0)
+        if (ctx.phase == InputActionPhase.Started)
         {
-            SetGrab(true);
+            grabInput = true;
         }
-        else
+        else if (ctx.phase == InputActionPhase.Canceled)
         {
-            SetGrab(false);
+            grabInput = false;
         }
     }
 
-    private void SetGrab(bool value)
+    private void Grab()
+    {
+        //Ckeck if player is close enough to a wall to grab it else release
+        if (handCheckRealtime == true && shoulderCheckRealtime == true && currentStamina > 0)
+        {
+            if (grabInput == true) { ToggleGrab(true); }
+            else if (grabInput == false) { ToggleGrab(false); }
+        }
+        else
+        {
+            ToggleGrab(false);
+        }
+    }
+
+    private void ToggleGrab(bool value)
     {
         if (value == true)
         {
@@ -510,10 +526,11 @@ public class PlayerController : MonoBehaviour
             else { currentGrabState = GrabStates.CLIMB; }
 
             //Grabbing and climbing
-            isControllable = false;
+            isControllableX = false;
             isGrabbing = true;
             overallGravityModifier = 0;
             thisBody.drag = grabDrag;
+
             thisBody.AddForce(new Vector2(0, inputY * moveSpeed * grabMovementModifier), (ForceMode2D)ForceMode.Acceleration);
 
             //Raise Event
@@ -527,7 +544,7 @@ public class PlayerController : MonoBehaviour
             if (currentMovementState != MovementState.GRAB) { return; }
 
             //Not grabbing
-            isControllable = true;
+            isControllableX = true;
             isGrabbing = false;
             thisBody.drag = airDrag;
             overallGravityModifier = 1;
