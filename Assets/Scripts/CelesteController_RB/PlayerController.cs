@@ -93,7 +93,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int numberOfJumps = 1;
     [SerializeField] private int jumpsLeft;
     [SerializeField] private float jumpForce = 20;
-
+    [Tooltip("The speed is reduced to this much of the current speed so as to cancel the jump")]
+    [SerializeField] private float jumpCancelModifier = 0.5f;
 
     [Header("Dash Values------------------------------------------------------------------------------")]
     [Tooltip("Number of dashes allowed without touching the ground")]
@@ -147,6 +148,7 @@ public class PlayerController : MonoBehaviour
 
         //Bind Functions with the input action map
         playerMovementActionMap.General.Jump.started += ctx => Jump();
+        playerMovementActionMap.General.Jump.canceled += ctx => JumpCancel();
         playerMovementActionMap.General.Dash.started += ctx => Dash();
         playerMovementActionMap.General.Grab.started += ctx => SetGrab(ctx);
         playerMovementActionMap.General.Grab.canceled += ctx => SetGrab(ctx);
@@ -320,6 +322,13 @@ public class PlayerController : MonoBehaviour
 
             //Note that in case of climb jumping, currentMovementState is not set to simple after the jump because it is set inside the grab function itself
         }
+    }
+
+    private void JumpCancel()
+    {
+        if (thisBody.velocity.y < 0) return;
+
+        thisBody.velocity = new Vector2(thisBody.velocity.x, thisBody.velocity.y * jumpCancelModifier);
     }
 
     private void RemoveFloatyness()
