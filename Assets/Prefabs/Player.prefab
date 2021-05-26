@@ -5050,11 +5050,13 @@ MonoBehaviour:
   inputY: 0
   thisVelocity: {x: 0, y: 0}
   runEnabled: 1
+  climbEnabled: 0
   jumpEnabled: 1
   dashEnabled: 1
   grabEnabled: 1
   movableColliders: 1
-  isControllable: 1
+  isControllableX: 1
+  isControllableY: 0
   moveSpeed: 10
   horizontalVelocityToSet: 0
   groundCheck: 0
@@ -5094,6 +5096,7 @@ MonoBehaviour:
   numberOfJumps: 2
   jumpsLeft: 0
   jumpForce: 20
+  jumpCancelModifier: 0.3
   numberOfDashes: 1
   dashForce: 3000
   dashVector: {x: -1, y: 0}
@@ -5101,9 +5104,9 @@ MonoBehaviour:
   preDashRecoverTime: 0.1
   canDash: 1
   maxStamina: 300
-  climbJumpForceVertical: 1000
-  climbJumpForceAngled: 100
-  grabMovementModifier: 0.2
+  climbJumpForceVertical: 70
+  climbJumpForceAngled: 70
+  grabMovementModifier: 0.5
   isGrabbing: 0
   handCheckRealtime: 0
   staminaConsumptionOnHold: 1
