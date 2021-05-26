@@ -111,6 +111,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool canDash;
 
     [Header("Grab Values------------------------------------------------------------------------------")]
+    [SerializeField] private bool canGrab;
     [HideInInspector] private bool grabInput;
     [SerializeField] private int maxStamina = 300;
     private int currentStamina;
@@ -223,8 +224,17 @@ public class PlayerController : MonoBehaviour
         dashVector = new Vector2(inputX, inputY).normalized * dashForce;
         if (dashVector == Vector2.zero)
         {
-            if (thisRotation.y == 0) { dashVector = Vector2.right * dashForce; }
-            else if (thisRotation.y == 180) { dashVector = Vector2.left * dashForce; }
+            //If normal state then apply dash in the forward direction 
+            if (currentMovementState == MovementState.SIMPLE)
+            {
+                if (thisRotation.y == 0) { dashVector = Vector2.right * dashForce; }
+                else if (thisRotation.y == 180) { dashVector = Vector2.left * dashForce; }
+            }
+            else if (currentMovementState == MovementState.GRAB) //If grabbing then apply dash opposite to the forward direction because the forward direction is towards the wall
+            {
+                if (thisRotation.y == 0) { dashVector = Vector2.left * dashForce; }
+                else if (thisRotation.y == 180) { dashVector = Vector2.right * dashForce; }
+            }
         }
 
         //Set Grab Jump Direction
@@ -405,12 +415,10 @@ public class PlayerController : MonoBehaviour
     private void Dash()
     {
         if (canDash == false) return;
+        canGrab = false;
 
-        //Apply dash time spent since the dash key was pressed is less than the dash time
         if (currentMovementState != MovementState.DASH)
         {
-            if (dashVector == Vector2.zero) return;
-
             currentMovementState = MovementState.DASH;
 
             if (dashVector == new Vector2(1 * dashForce, 0) || dashVector == new Vector2(-1 * dashForce, 0))
@@ -465,6 +473,7 @@ public class PlayerController : MonoBehaviour
         //If another state was set before the dash is cancelled then dont set the simple state and let the current state be whatever it is
         if (currentMovementState == MovementState.DASH) currentMovementState = MovementState.SIMPLE;
 
+        canGrab = true;
 
         if (EDashed != null) { EDashed(false); }
 
@@ -538,7 +547,6 @@ public class PlayerController : MonoBehaviour
             isControllableX = false;
             isGrabbing = true;
             overallGravityModifier = 0;
-            thisBody.drag = grabDrag;
 
             thisBody.AddForce(new Vector2(0, inputY * moveSpeed * grabMovementModifier), (ForceMode2D)ForceMode.Acceleration);
 

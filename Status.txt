@@ -4,7 +4,7 @@
 10: Fix : Small Moving platform climb jump high speed
 11: Add: Animations Events
 12: Add : Intergration with the new input System
-
+13: Add : Last Climb Jump is bigger than expected
 
 (Done) 1. Add : Bools to disable a particular component(s)
 (Done) 2. Add : Multiple Dashes

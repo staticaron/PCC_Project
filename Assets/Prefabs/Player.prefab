@@ -5095,7 +5095,7 @@ MonoBehaviour:
   coyoteEnabled: 0
   numberOfJumps: 2
   jumpsLeft: 0
-  jumpForce: 20
+  jumpForce: 22
   jumpCancelModifier: 0.3
   numberOfDashes: 1
   dashForce: 3000
@@ -5103,6 +5103,7 @@ MonoBehaviour:
   dashRecoverTime: 0.3
   preDashRecoverTime: 0.1
   canDash: 1
+  canGrab: 0
   maxStamina: 300
   climbJumpForceVertical: 70
   climbJumpForceAngled: 70
