@@ -53,6 +53,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool groundCheck;
     //GroundCheck = GroundCheckRealtime + coyotiness
     [SerializeField] public bool groundCheckRealtime;
+    [SerializeField] public bool handCheckRealtime;
     [SerializeField] private bool shoulderCheckRealtime;
     [SerializeField] private bool movableCheckFoot;
     [SerializeField] private bool movableCheckHand;
@@ -71,8 +72,8 @@ public class PlayerController : MonoBehaviour
     [Header("Hand Properties------------------------------------------------------------------------------")]
     [SerializeField] private Transform hand;
     [SerializeField] private Transform shoulder;
-    [SerializeField] private Vector2 handSize = new Vector2(.5f, 1);
-    [SerializeField] private Vector2 shoulderSize = new Vector2(.5f, 1);
+    [SerializeField] private float handLength = 0.25f;
+    [SerializeField] private float shoulderLength = 0.25f;
     [Tooltip("Objects in this layer can be grabbed")]
     [SerializeField] private LayerMask grabMask;
     [SerializeField] private Collider2D movableColliderSide;
@@ -110,6 +111,8 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Time offset between the key press and direction set")]
     [SerializeField] private bool canDash;
 
+    [Header("Grab Properties-----------------------------------------------------------------------")]
+
     //Colliders
     private BoxCollider2D boxCollider;
     private CircleCollider2D circleCollider;
@@ -128,6 +131,8 @@ public class PlayerController : MonoBehaviour
         playerMovementActionMap.General.Jump.started += ctx => Jump();
         playerMovementActionMap.General.Jump.canceled += ctx => JumpCancel();
         playerMovementActionMap.General.Dash.started += ctx => Dash();
+        playerMovementActionMap.General.Grab.started += ctx => Grab(ctx);
+        playerMovementActionMap.General.Grab.canceled += ctx => Grab(ctx);
     }
 
     private void OnEnable()
@@ -166,6 +171,9 @@ public class PlayerController : MonoBehaviour
         //Do checks for ground and movable objects
         groundCheckRealtime = Physics2D.OverlapBox(foot.position, footSize, 0, groundMask);
 
+        handCheckRealtime = Physics2D.Raycast(hand.position, transform.right, handLength, grabMask);
+        shoulderCheckRealtime = Physics2D.Raycast(shoulder.position, transform.right, shoulderLength, grabMask);
+
         //For Animations
         thisVelocity = thisBody.velocity;
         thisRotation = transform.rotation.eulerAngles;
@@ -202,13 +210,12 @@ public class PlayerController : MonoBehaviour
 
     private void SetHorizontalVelocity()
     {
-        if (isControllableX == true) { horizontalVelocityToSet = horizontalVelocityToSet + inputX * moveSpeed; }
-        else
+        if (isControllableX)
         {
-            if (currentMovementState == MovementState.DASH) { return; }
-        }
+            horizontalVelocityToSet = inputX * moveSpeed;
 
-        thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
+            thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
+        }
     }
 
     private void Jump()
@@ -374,10 +381,17 @@ public class PlayerController : MonoBehaviour
 
     }
 
+    private void Grab(InputAction.CallbackContext ctx)
+    {
+        Debug.Log(ctx);
+    }
+
     private void OnDrawGizmos()
     {
         if (footVisualization == true) Gizmos.DrawCube(foot.position, footSize);
-        if (handVisualization == true) Gizmos.DrawCube(hand.position, handSize);
-        if (handVisualization == true) Gizmos.DrawCube(shoulder.position, shoulderSize);
+        if (thisRotation.y == 0) { if (handVisualization == true) Debug.DrawLine(hand.position, hand.position + new Vector3(handLength, 0, 0), Color.green); }
+        else { Debug.DrawLine(hand.position, hand.position - new Vector3(handLength, 0, 0), Color.green); }
+        if (thisRotation.y == 0) { if (handVisualization == true) Debug.DrawLine(shoulder.position, shoulder.position + new Vector3(shoulderLength, 0, 0), Color.cyan); }
+        else { Debug.DrawLine(shoulder.position, shoulder.position - new Vector3(shoulderLength, 0, 0), Color.cyan); }
     }
 }

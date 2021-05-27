@@ -5061,6 +5061,7 @@ MonoBehaviour:
   horizontalVelocityToSet: 0
   groundCheck: 0
   groundCheckRealtime: 1
+  handCheckRealtime: 0
   shoulderCheckRealtime: 0
   movableCheckFoot: 0
   movableCheckHand: 0
@@ -5076,8 +5077,8 @@ MonoBehaviour:
   footVisualization: 0
   hand: {fileID: 4327160911034168962}
   shoulder: {fileID: 4327160911376183348}
-  handSize: {x: 0.5, y: 0.8}
-  shoulderSize: {x: 0.5, y: 0.1}
+  handLength: 0.5
+  shoulderLength: 0.5
   grabMask:
     serializedVersion: 2
     m_Bits: 3072
@@ -5101,22 +5102,8 @@ MonoBehaviour:
   dashForce: 3000
   dashVector: {x: -1, y: 0}
   dashRecoverTime: 0.3
-  preDashRecoverTime: 0.1
+  preDashRecoverTime: 0.2
   canDash: 1
-  canGrab: 0
-  maxStamina: 300
-  climbJumpForceVertical: 70
-  climbJumpForceAngled: 70
-  grabMovementModifier: 0.5
-  isGrabbing: 0
-  handCheckRealtime: 0
-  staminaConsumptionOnHold: 1
-  staminaConsumptionOnClimb: 2
-  staminaConsumptionOnClimbJump: 20
-  grabJumpDirection: {x: 0, y: 0}
-  tempGrabJumpDirection: {x: 1, y: 0.5}
-  shoulderPushForceDirection: {x: 0, y: 0}
-  tempShoulderPushDirection: {x: 10, y: 10}
 --- !u!114 &4327160912582216264
 MonoBehaviour:
   m_ObjectHideFlags: 0
