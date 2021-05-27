@@ -5050,7 +5050,7 @@ MonoBehaviour:
   inputY: 0
   thisVelocity: {x: 0, y: 0}
   runEnabled: 1
-  climbEnabled: 0
+  climbEnabled: 1
   jumpEnabled: 1
   dashEnabled: 1
   grabEnabled: 1
@@ -5060,13 +5060,13 @@ MonoBehaviour:
   moveSpeed: 10
   horizontalVelocityToSet: 0
   groundCheck: 0
-  groundCheckRealtime: 1
+  groundCheckRealtime: 0
   handCheckRealtime: 0
   shoulderCheckRealtime: 0
   movableCheckFoot: 0
   movableCheckHand: 0
   foot: {fileID: 4327160911110871432}
-  footSize: {x: 1, y: 0.5}
+  footLength: 0.4
   groundMask:
     serializedVersion: 2
     m_Bits: 1024
@@ -5074,7 +5074,7 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 2048
   movableColliderBelow: {fileID: 0}
-  footVisualization: 0
+  footVisualization: 1
   hand: {fileID: 4327160911034168962}
   shoulder: {fileID: 4327160911376183348}
   handLength: 0.5
@@ -5106,6 +5106,7 @@ MonoBehaviour:
   canDash: 1
   climbSpeedModifier: 1
   grabInput: 0
+  canGrab: 0
 --- !u!114 &4327160912582216264
 MonoBehaviour:
   m_ObjectHideFlags: 0

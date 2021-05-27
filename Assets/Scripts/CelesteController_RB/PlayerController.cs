@@ -81,7 +81,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Foot Properties------------------------------------------------------------------------------")]
     [SerializeField] private Transform foot;
-    [SerializeField] private Vector2 footSize = new Vector2(1, 0.5f);
+    [SerializeField] private float footLength;
     [SerializeField] private LayerMask groundMask;
     [Tooltip("Checks whether the object below belongs to the movable objects ( Not applicable if movable object interaction is turned off)")]
     [SerializeField] private LayerMask movableObjectMask;
@@ -195,7 +195,7 @@ public class PlayerController : MonoBehaviour
     private void SetValues()
     {
         //Do checks for ground and movable objects
-        groundCheckRealtime = Physics2D.OverlapBox(foot.position, footSize, 0, groundMask);
+        groundCheckRealtime = Physics2D.Raycast(foot.position, -transform.up, footLength, groundMask);
 
         handCheckRealtime = Physics2D.Raycast(hand.position, transform.right, handLength, grabMask);
         shoulderCheckRealtime = Physics2D.Raycast(shoulder.position, transform.right, shoulderLength, grabMask);
@@ -450,7 +450,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnDrawGizmos()
     {
-        if (footVisualization == true) Gizmos.DrawCube(foot.position, footSize);
+        if (footVisualization == true) Debug.DrawLine(foot.position, foot.position - new Vector3(0, footLength, 0), Color.red);
         if (thisRotation.y == 0) { if (handVisualization == true) Debug.DrawLine(hand.position, hand.position + new Vector3(handLength, 0, 0), Color.green); }
         else { Debug.DrawLine(hand.position, hand.position - new Vector3(handLength, 0, 0), Color.green); }
         if (thisRotation.y == 0) { if (handVisualization == true) Debug.DrawLine(shoulder.position, shoulder.position + new Vector3(shoulderLength, 0, 0), Color.cyan); }
