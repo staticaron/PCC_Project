@@ -110,29 +110,6 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Time offset between the key press and direction set")]
     [SerializeField] private bool canDash;
 
-    [Header("Grab Values------------------------------------------------------------------------------")]
-    [SerializeField] private bool canGrab;
-    [HideInInspector] private bool grabInput;
-    [SerializeField] private int maxStamina = 300;
-    private int currentStamina;
-    [Tooltip("Force added vertically for climbing")]
-    [SerializeField] private float climbJumpForceVertical = 70;
-    [Tooltip("The force added when jumped against the wall")]
-    [SerializeField] private float climbJumpForceAngled = 70;
-    [Tooltip("Changes the speed of climbing (1 means same speed as moveSpeed)")]
-    [SerializeField] private float grabMovementModifier = 0.3f;
-    [SerializeField] private bool isGrabbing;
-    [SerializeField] private bool handCheckRealtime;
-    [SerializeField] private int staminaConsumptionOnHold = 1;           //Stamina that is consumed per frame while climb holding
-    [SerializeField] private int staminaConsumptionOnClimb = 5;          //Stamina that is consumed per frame while climb climbing
-    [SerializeField] private int staminaConsumptionOnClimbJump = 50;     //Stamina that is consumed per frame while climb jumping
-    [SerializeField] private Vector2 grabJumpDirection;
-    [Tooltip("The temporary direction of applied force while climb jumping. (1, 0.5) means force will be applied at (1, 0.5) if jump is made to right and (-1, 0.5) if the jump is made to the left")]
-    [SerializeField] private Vector2 tempGrabJumpDirection = new Vector2(1, 1);
-    [SerializeField] private Vector2 shoulderPushForceDirection;
-    [Tooltip("The temp direction in which the shoulder push is applied.  (1, 0.5) means force will be applied at (1, 0.5) if character is grabbing right and (-1, 0.5) if character is grabbing left")]
-    [SerializeField] private Vector2 tempShoulderPushDirection = new Vector2(1, 1);
-
     //Colliders
     private BoxCollider2D boxCollider;
     private CircleCollider2D circleCollider;
@@ -151,8 +128,6 @@ public class PlayerController : MonoBehaviour
         playerMovementActionMap.General.Jump.started += ctx => Jump();
         playerMovementActionMap.General.Jump.canceled += ctx => JumpCancel();
         playerMovementActionMap.General.Dash.started += ctx => Dash();
-        playerMovementActionMap.General.Grab.started += ctx => SetGrab(ctx);
-        playerMovementActionMap.General.Grab.canceled += ctx => SetGrab(ctx);
     }
 
     private void OnEnable()
@@ -174,7 +149,6 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        ApplyMovableGroundForce();
 
         if (runEnabled) SetHorizontalVelocity();
 
@@ -185,36 +159,12 @@ public class PlayerController : MonoBehaviour
         RemoveFloatyness();
 
         SetDash();
-
-        CalculateStamina(currentGrabState);
-
-        if (grabEnabled) Grab();
     }
 
     private void SetValues()
     {
         //Do checks for ground and movable objects
         groundCheckRealtime = Physics2D.OverlapBox(foot.position, footSize, 0, groundMask);
-        var movableCastFoot = Physics2D.OverlapBox(foot.position, footSize, 0, movableObjectMask);
-        var movableCastHand = Physics2D.OverlapBox(hand.position, handSize, 0, movableObjectMask);
-
-        if (movableColliders)
-        {
-            movableCheckFoot = (bool)movableCastFoot;
-            movableCheckHand = (bool)movableCastHand;
-        }
-
-        //Get the movable collider if standing on / holding one
-        if (movableCheckFoot || movableCheckHand)
-        {
-            movableColliderBelow = (Collider2D)movableCastFoot;
-            movableColliderSide = (Collider2D)movableCastHand;
-        }
-        else { movableColliderBelow = null; movableColliderSide = null; }
-
-        //groundCheckRealtime = Physics2D.OverlapBox(foot.position, footSize, 0, groundMask);
-        shoulderCheckRealtime = Physics2D.OverlapBox(shoulder.position, shoulderSize, 0, grabMask);
-        handCheckRealtime = Physics2D.OverlapBox(hand.position, handSize, 0, grabMask);
 
         //For Animations
         thisVelocity = thisBody.velocity;
@@ -235,22 +185,6 @@ public class PlayerController : MonoBehaviour
                 if (thisRotation.y == 0) { dashVector = Vector2.left * dashForce; }
                 else if (thisRotation.y == 180) { dashVector = Vector2.right * dashForce; }
             }
-        }
-
-        //Set Grab Jump Direction
-        if (currentMovementState == MovementState.GRAB)
-        {
-            if (thisRotation.y == 0 && inputX < 0) { grabJumpDirection = (new Vector2(-tempGrabJumpDirection.x, tempGrabJumpDirection.y).normalized); }
-            else if (thisRotation.y == 180 && inputX > 0) { grabJumpDirection = (new Vector2(tempGrabJumpDirection.x, tempGrabJumpDirection.y).normalized); }
-            else { grabJumpDirection = Vector2.zero; }
-
-        }
-
-        //Set push force direction
-        if (currentMovementState == MovementState.GRAB)
-        {
-            if (thisRotation.y == 0) { shoulderPushForceDirection = new Vector2(tempShoulderPushDirection.x, tempShoulderPushDirection.y); }
-            else { shoulderPushForceDirection = new Vector2(-tempShoulderPushDirection.x, tempShoulderPushDirection.y); }
         }
 
         //Maintain the jump count
@@ -277,24 +211,6 @@ public class PlayerController : MonoBehaviour
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
 
-    private void ApplyMovableGroundForce()
-    {
-        if (movableCheckFoot)
-        {
-            float movementSpeedOfMovableObject = movableColliderBelow.GetComponent<Rigidbody2D>().velocity.x;
-            horizontalVelocityToSet = movementSpeedOfMovableObject;
-        }
-        else if (movableCheckHand)
-        {
-            float movementSpeedOfMovableObject = movableColliderSide.GetComponent<Rigidbody2D>().velocity.x;
-            horizontalVelocityToSet = movementSpeedOfMovableObject;
-        }
-        else
-        {
-            horizontalVelocityToSet = 0;
-        }
-    }
-
     private void Jump()
     {
         if (currentMovementState == MovementState.SIMPLE)
@@ -309,28 +225,6 @@ public class PlayerController : MonoBehaviour
                 thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
                 jumpsLeft -= 1;
             }
-        }
-        else if (currentMovementState == MovementState.GRAB)
-        {
-            if (grabJumpDirection != Vector2.zero)
-            {
-                if (isGrabbing == true)
-                {
-                    thisBody.velocity = new Vector2(grabJumpDirection.x * climbJumpForceAngled, grabJumpDirection.y * climbJumpForceAngled);
-                    currentGrabState = GrabStates.NONE;
-                    jumpsLeft -= 1;
-                }
-            }
-            else
-            {
-                if (isGrabbing == true)
-                {
-                    thisBody.velocity = new Vector2(thisBody.velocity.x, climbJumpForceVertical);
-                    currentGrabState = GrabStates.CLIMBJUMP;
-                }
-            }
-
-            //Note that in case of climb jumping, currentMovementState is not set to simple after the jump because it is set inside the grab function itself
         }
     }
 
@@ -415,7 +309,6 @@ public class PlayerController : MonoBehaviour
     private void Dash()
     {
         if (canDash == false) return;
-        canGrab = false;
 
         if (currentMovementState != MovementState.DASH)
         {
@@ -473,104 +366,12 @@ public class PlayerController : MonoBehaviour
         //If another state was set before the dash is cancelled then dont set the simple state and let the current state be whatever it is
         if (currentMovementState == MovementState.DASH) currentMovementState = MovementState.SIMPLE;
 
-        canGrab = true;
-
         if (EDashed != null) { EDashed(false); }
 
         //Restore the colliders to original state
         boxCollider.enabled = true;
         circleCollider.enabled = false;
 
-    }
-
-    private void CalculateStamina(GrabStates grabState)
-    {
-        if (groundCheckRealtime == true) { currentStamina = maxStamina; }
-        else
-        {
-            //The player is grabbing and is not touching the ground, so decrease the stamina
-            if (isGrabbing)
-            {
-                if (grabState == GrabStates.HOLD)
-                {
-                    currentStamina -= staminaConsumptionOnHold;
-                }
-                else if (grabState == GrabStates.CLIMB)
-                {
-                    currentStamina -= staminaConsumptionOnClimb;
-                }
-                else if (grabState == GrabStates.CLIMBJUMP)
-                {
-                    currentStamina -= staminaConsumptionOnClimbJump;
-                }
-            }
-        }
-
-        currentStamina = Mathf.Clamp(currentStamina, 0, maxStamina);
-    }
-
-    private void SetGrab(InputAction.CallbackContext ctx)
-    {
-        if (ctx.phase == InputActionPhase.Started)
-        {
-            grabInput = true;
-        }
-        else if (ctx.phase == InputActionPhase.Canceled)
-        {
-            grabInput = false;
-        }
-    }
-
-    private void Grab()
-    {
-        //Ckeck if player is close enough to a wall to grab it else release
-        if (handCheckRealtime == true && shoulderCheckRealtime == true && currentStamina > 0)
-        {
-            if (grabInput == true) { ToggleGrab(true); }
-            else if (grabInput == false) { ToggleGrab(false); }
-        }
-        else
-        {
-            ToggleGrab(false);
-        }
-    }
-
-    private void ToggleGrab(bool value)
-    {
-        if (value == true)
-        {
-            //Set the correct grab state according to the current grab state
-            if (inputY == 0) { currentGrabState = GrabStates.HOLD; }
-            else { currentGrabState = GrabStates.CLIMB; }
-
-            //Grabbing and climbing
-            isControllableX = false;
-            isGrabbing = true;
-            overallGravityModifier = 0;
-
-            thisBody.AddForce(new Vector2(0, inputY * moveSpeed * grabMovementModifier), (ForceMode2D)ForceMode.Acceleration);
-
-            //Raise Event
-            if (currentMovementState != MovementState.GRAB) { if (EGrabbed != null) EGrabbed(true); }
-
-            currentMovementState = MovementState.GRAB;
-        }
-        else
-        {
-            //If player was not grabbing earlier than what is the point of setting its grab to false
-            if (currentMovementState != MovementState.GRAB) { return; }
-
-            //Not grabbing
-            isControllableX = true;
-            isGrabbing = false;
-            thisBody.drag = airDrag;
-            overallGravityModifier = 1;
-
-            //Raise Event
-            if (EGrabbed != null) EGrabbed(false);
-
-            currentMovementState = MovementState.SIMPLE;
-        }
     }
 
     private void OnDrawGizmos()
