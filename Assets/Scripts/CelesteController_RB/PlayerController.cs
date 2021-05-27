@@ -2,7 +2,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public enum MovementState { SIMPLE, DASH, GRAB };
+public enum MovementState { SIMPLE, JUMP, DASH, GRAB };
 public enum GrabStates { NONE, HOLD, CLIMB, CLIMBJUMP };
 
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D), typeof(CircleCollider2D))]
@@ -74,6 +74,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool groundCheck;
     //GroundCheck = GroundCheckRealtime + coyotiness
     [SerializeField] public bool groundCheckRealtime;
+    [SerializeField] private bool oldGroundCheckRealtime;
     [SerializeField] public bool handCheckRealtime;
     [SerializeField] private bool shoulderCheckRealtime;
     [SerializeField] private bool movableCheckFoot;
@@ -204,6 +205,12 @@ public class PlayerController : MonoBehaviour
         thisVelocity = thisBody.velocity;
         thisRotation = transform.rotation.eulerAngles;
 
+        //Jump 
+        if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
+        {
+            if (currentMovementState == MovementState.JUMP) currentMovementState = MovementState.SIMPLE;
+        }
+
         GetDashDirection();
 
         SetDash();
@@ -213,6 +220,8 @@ public class PlayerController : MonoBehaviour
         {
             jumpsLeft = numberOfJumps;
         }
+
+        oldGroundCheckRealtime = groundCheckRealtime;
     }
 
     private void GetDashDirection()
@@ -275,12 +284,14 @@ public class PlayerController : MonoBehaviour
                 jumpsLeft -= 1;
             }
         }
+
+        currentMovementState = MovementState.JUMP;
     }
 
     private void JumpCancel()
     {
         //Cancel the jump if jumping
-        if (CurrentMovementState != MovementState.SIMPLE) return;
+        if (CurrentMovementState != MovementState.JUMP) return;
 
         if (thisBody.velocity.y < 0) return;
 

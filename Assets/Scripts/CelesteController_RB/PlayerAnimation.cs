@@ -66,7 +66,7 @@ public class PlayerAnimation : MonoBehaviour
     public void RotatePlayer()
     {
         //If not in simple state then avoid rotation
-        if (playerController.CurrentMovementState != MovementState.SIMPLE) return;
+        if (playerController.CurrentMovementState != MovementState.SIMPLE && playerController.CurrentMovementState != MovementState.JUMP) return;
 
         if (this.playerController.inputX > 0)
         {
