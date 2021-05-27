@@ -24,6 +24,10 @@ public class PlayerController : MonoBehaviour
                 case MovementState.SIMPLE:
                     canGrab = true;
                     break;
+                case MovementState.JUMP:
+                    if (currentGrabState == GrabStates.NONE) { canGrab = true; }
+                    else { canGrab = false; }
+                    break;
                 case MovementState.DASH:
                     canGrab = false;
                     break;
@@ -78,6 +82,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] public bool handCheckRealtime;
     [SerializeField] private bool shoulderCheckRealtime;
     [SerializeField] private bool movableCheckFoot;
+    [SerializeField] private bool oldMovableCheckFoot;
     [SerializeField] private bool movableCheckHand;
 
     [Header("Foot Properties------------------------------------------------------------------------------")]
@@ -182,7 +187,6 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-
         if (runEnabled) SetHorizontalVelocity();
         if (climbEnabled) SetVerticalVelocity();
 
@@ -208,7 +212,7 @@ public class PlayerController : MonoBehaviour
         //Jump 
         if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
         {
-            if (currentMovementState == MovementState.JUMP) currentMovementState = MovementState.SIMPLE;
+            if (CurrentMovementState == MovementState.JUMP) CurrentMovementState = MovementState.SIMPLE;
         }
 
         GetDashDirection();
@@ -216,7 +220,7 @@ public class PlayerController : MonoBehaviour
         SetDash();
 
         //Maintain the jump count
-        if (groundCheckRealtime || movableCheckFoot)
+        if ((groundCheckRealtime == true && oldGroundCheckRealtime == false) || (movableCheckFoot == true && oldMovableCheckFoot == false))
         {
             jumpsLeft = numberOfJumps;
         }
@@ -231,7 +235,7 @@ public class PlayerController : MonoBehaviour
         if (dashVector == Vector2.zero)
         {
             //If normal state then apply dash in the forward direction 
-            if (CurrentMovementState == MovementState.SIMPLE)
+            if (CurrentMovementState == MovementState.SIMPLE || CurrentMovementState == MovementState.JUMP)
             {
                 if (thisRotation.y == 0) { dashVector = Vector2.right * dashForce; }
                 else if (thisRotation.y == 180) { dashVector = Vector2.left * dashForce; }
@@ -252,12 +256,11 @@ public class PlayerController : MonoBehaviour
 
     private void SetHorizontalVelocity()
     {
-        if (isControllableX)
-        {
-            horizontalVelocityToSet = inputX * moveSpeed;
+        if (isControllableX == false) return;
 
-            thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
-        }
+        horizontalVelocityToSet = inputX * moveSpeed;
+
+        thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
 
     private void SetVerticalVelocity()
@@ -266,14 +269,13 @@ public class PlayerController : MonoBehaviour
 
         var vertVel = inputY * moveSpeed * climbSpeedModifier;
         thisBody.velocity = new Vector2(thisBody.velocity.x, vertVel);
-        Debug.Log("vert vel being set" + thisBody.velocity);
     }
 
     private void Jump()
     {
-        if (CurrentMovementState == MovementState.SIMPLE)
+        if (CurrentMovementState == MovementState.SIMPLE || CurrentMovementState == MovementState.JUMP)
         {
-            if (groundCheck == true && jumpsLeft > 0)
+            if (jumpsLeft > 0)
             {
                 thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
                 jumpsLeft -= 1;
@@ -285,7 +287,7 @@ public class PlayerController : MonoBehaviour
             }
         }
 
-        currentMovementState = MovementState.JUMP;
+        CurrentMovementState = MovementState.JUMP;
     }
 
     private void JumpCancel()
@@ -449,13 +451,17 @@ public class PlayerController : MonoBehaviour
     {
         if (!canGrab) return;
 
-        if (grabInput && handCheckRealtime)
+        if (grabInput)
         {
             CurrentMovementState = MovementState.GRAB;
+            isControllableX = false;
+            isControllableY = true;
         }
         else
         {
             if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
+            isControllableX = true;
+            isControllableY = false;
         }
     }
 

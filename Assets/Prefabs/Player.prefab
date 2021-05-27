@@ -5045,7 +5045,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentMovementState: 0
-  currentGrabState: 3
+  currentGrabState: 0
   inputX: 0
   inputY: 0
   thisVelocity: {x: 0, y: 0}
@@ -5061,6 +5061,7 @@ MonoBehaviour:
   horizontalVelocityToSet: 0
   groundCheck: 0
   groundCheckRealtime: 0
+  oldGroundCheckRealtime: 0
   handCheckRealtime: 0
   shoulderCheckRealtime: 0
   movableCheckFoot: 0
