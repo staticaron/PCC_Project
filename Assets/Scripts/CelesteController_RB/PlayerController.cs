@@ -469,6 +469,7 @@ public class PlayerController : MonoBehaviour
             //Pause
             StartCoroutine(MicroscopicPause(microscopicPauseTime));
 
+
             //Enable the circle collider so as to smooth out the collisions
             circleCollider.enabled = true;
             boxCollider.enabled = false;
