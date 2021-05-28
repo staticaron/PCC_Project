@@ -139,7 +139,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float dashRecoverTime = 0.3f;
     [Tooltip("The time less than the dash recover time by which controls are enabled so as to line up the landing")]
     [SerializeField] private float preDashRecoverTime = 0.1f;
-    [Tooltip("Time offset between the key press and direction set")]
+    [SerializeField] private float microscopicPauseTime;
     [SerializeField] private bool canDash;
 
     [Header("Grab Properties-----------------------------------------------------------------------")]
@@ -466,6 +466,9 @@ public class PlayerController : MonoBehaviour
             StartCoroutine(PreDashRecover(preDashRecoverTime));
             StartCoroutine(DashRecover(dashRecoverTime));
 
+            //Pause
+            StartCoroutine(MicroscopicPause(microscopicPauseTime));
+
             //Enable the circle collider so as to smooth out the collisions
             circleCollider.enabled = true;
             boxCollider.enabled = false;
@@ -503,6 +506,14 @@ public class PlayerController : MonoBehaviour
         boxCollider.enabled = true;
         circleCollider.enabled = false;
 
+    }
+
+    private IEnumerator<WaitForSecondsRealtime> MicroscopicPause(float time)
+    {
+        var originalTimeScale = Time.timeScale;
+        Time.timeScale = 0;
+        yield return new WaitForSecondsRealtime(time);
+        Time.timeScale = originalTimeScale;
     }
 
     private void Grab(InputAction.CallbackContext ctx)

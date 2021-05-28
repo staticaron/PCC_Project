@@ -5045,7 +5045,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentMovementState: 0
-  currentGrabState: 0
+  _currentGrabState: 0
   inputX: 0
   inputY: 0
   thisVelocity: {x: 0, y: 0}
@@ -5105,10 +5105,18 @@ MonoBehaviour:
   dashVector: {x: -1, y: 0}
   dashRecoverTime: 0.3
   preDashRecoverTime: 0.2
+  microscopicPauseTime: 0.08
   canDash: 1
   climbSpeedModifier: 1
+  maxStaminaPoints: 300
+  currentStaminaPoints: 0
+  holdStaminaConsumption: 1
+  climbStaminaConsumption: 2
+  climbJumpStaminaConsumption: 30
   grabInput: 0
   canGrab: 0
+  grabJumpDirection: {x: 0, y: 0}
+  tempGrabJumpDirection: {x: 1, y: 1}
 --- !u!114 &4327160912582216264
 MonoBehaviour:
   m_ObjectHideFlags: 0
