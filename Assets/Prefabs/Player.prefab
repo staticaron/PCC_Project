@@ -5065,6 +5065,7 @@ MonoBehaviour:
   handCheckRealtime: 0
   shoulderCheckRealtime: 0
   movableCheckFoot: 0
+  oldMovableCheckFoot: 0
   movableCheckHand: 0
   foot: {fileID: 4327160911110871432}
   footLength: 0.4

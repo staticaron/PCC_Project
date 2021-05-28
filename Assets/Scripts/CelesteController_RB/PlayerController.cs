@@ -143,6 +143,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float climbSpeedModifier;
     [SerializeField] private bool grabInput;
     [SerializeField] private bool canGrab;
+    [SerializeField] private Vector2 grabJumpDirection;
+    [SerializeField] private Vector2 tempGrabJumpDirection = new Vector2(1, 1);
 
     //Colliders
     private BoxCollider2D boxCollider;
@@ -209,7 +211,7 @@ public class PlayerController : MonoBehaviour
         thisVelocity = thisBody.velocity;
         thisRotation = transform.rotation.eulerAngles;
 
-        //Jump 
+        //Regain Jump
         if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
         {
             if (CurrentMovementState == MovementState.JUMP) CurrentMovementState = MovementState.SIMPLE;
@@ -217,7 +219,10 @@ public class PlayerController : MonoBehaviour
 
         GetDashDirection();
 
+        //Maintain the number of dashes
         SetDash();
+
+        if (CurrentMovementState == MovementState.GRAB) GetJumpDirection();
 
         //Maintain the jump count
         if ((groundCheckRealtime == true && oldGroundCheckRealtime == false) || (movableCheckFoot == true && oldMovableCheckFoot == false))
@@ -245,6 +250,24 @@ public class PlayerController : MonoBehaviour
                 if (thisRotation.y == 0) { dashVector = Vector2.left * dashForce; }
                 else if (thisRotation.y == 180) { dashVector = Vector2.right * dashForce; }
             }
+        }
+    }
+
+    private void GetJumpDirection()
+    {
+        /* If facing right and pressing left then set the jump direction to the left
+        If facing left and pressing right then set the jump direction to the right
+        If facing left and pressing any other direction then set the jump direction to up
+        Similarly if facing right and pressing any other direction then set jump direction to up*/
+        if (thisRotation.y == 0)
+        {
+            if (inputX < 0) { grabJumpDirection = (new Vector2(-tempGrabJumpDirection.x, tempGrabJumpDirection.y)).normalized; }
+            else { grabJumpDirection = Vector2.up; }
+        }
+        else
+        {
+            if (inputX > 0) { grabJumpDirection = tempGrabJumpDirection.normalized; }
+            else { grabJumpDirection = Vector2.up; }
         }
     }
 
@@ -277,17 +300,28 @@ public class PlayerController : MonoBehaviour
         {
             if (jumpsLeft > 0)
             {
-                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
-                jumpsLeft -= 1;
-            }
-            else if (movableCheckFoot == true && jumpsLeft > 0)
-            {
-                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
-                jumpsLeft -= 1;
+                ApplyJumpForce(Vector2.up);
+                CurrentMovementState = MovementState.JUMP;
             }
         }
+        else if (currentMovementState == MovementState.GRAB && jumpsLeft > 0)
+        {
+            ApplyJumpForce(grabJumpDirection);
+            CurrentMovementState = MovementState.JUMP;
+        }
+    }
 
-        CurrentMovementState = MovementState.JUMP;
+    private void ApplyJumpForce(Vector2 dir)
+    {
+        if (dir == Vector2.up)
+        {
+            thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+        }
+        else
+        {
+            thisBody.velocity = new Vector2(dir.x * jumpForce, dir.y * jumpForce);
+        }
+        jumpsLeft -= 1;
     }
 
     private void JumpCancel()
@@ -350,19 +384,18 @@ public class PlayerController : MonoBehaviour
         {
             thisBody.drag = dashDrag;
         }
-        else if (CurrentMovementState == MovementState.GRAB)
-        {
-            thisBody.velocity = new Vector2(thisBody.velocity.x, thisVelocity.y - thisVelocity.y * 0.5f);
-        }
+
+        //TODO : Apply Drag here
     }
 
     //Can be called from another script (crystal) to replenish the dash
-    public void SetDash(bool value)
+    public void SetDash(bool value, int numberOfDashes)
     {
         canDash = value;
+        dashesLeft = numberOfDashes;
     }
 
-    public void SetDash()
+    private void SetDash()
     {
         if (CurrentMovementState == MovementState.DASH) return;
 
@@ -451,18 +484,30 @@ public class PlayerController : MonoBehaviour
     {
         if (!canGrab) return;
 
-        if (grabInput)
+        if (grabInput && handCheckRealtime)
         {
-            CurrentMovementState = MovementState.GRAB;
-            isControllableX = false;
-            isControllableY = true;
+            SetValuesForGrab();
         }
         else
         {
             if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
-            isControllableX = true;
-            isControllableY = false;
+            SetNormalValues();
         }
+    }
+
+    private void SetValuesForGrab()
+    {
+        CurrentMovementState = MovementState.GRAB;
+        isControllableX = false;
+        isControllableY = true;
+        overallGravityModifier = 0;
+    }
+
+    private void SetNormalValues()
+    {
+        isControllableX = true;
+        isControllableY = false;
+        overallGravityModifier = 1;
     }
 
     private void OnDrawGizmos()
