@@ -5113,6 +5113,7 @@ MonoBehaviour:
   holdStaminaConsumption: 1
   climbStaminaConsumption: 2
   climbJumpStaminaConsumption: 30
+  climbJumpTime: 0.5
   grabInput: 0
   canGrab: 0
   grabJumpDirection: {x: 0, y: 0}

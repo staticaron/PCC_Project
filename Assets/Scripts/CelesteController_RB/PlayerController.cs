@@ -77,6 +77,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isControllableY = false;
     [SerializeField] private float moveSpeed = 10;
     [SerializeField] private float horizontalVelocityToSet;
+    [SerializeField] private bool isChangeInGrabStateEnabled = true;
 
     [Header("Checkers------------------------------------------------------------------------------")]
     [SerializeField] private bool groundCheck;
@@ -150,6 +151,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int holdStaminaConsumption;
     [SerializeField] private int climbStaminaConsumption;
     [SerializeField] private int climbJumpStaminaConsumption;
+    [SerializeField] private float climbJumpTime;
     [SerializeField] private bool grabInput;
     [SerializeField] private bool canGrab;
     [SerializeField] private Vector2 grabJumpDirection;
@@ -193,7 +195,7 @@ public class PlayerController : MonoBehaviour
 
         GetInput();
 
-        CheckGrabInput();
+        ApplyGrab();
     }
 
     private void FixedUpdate()
@@ -284,6 +286,8 @@ public class PlayerController : MonoBehaviour
 
     private void SetGrabState()
     {
+        if (isChangeInGrabStateEnabled == false) return;
+
         if (thisVelocity.y != 0) { CurrentGrabState = GrabStates.CLIMB; }
         else CurrentGrabState = GrabStates.HOLD;
     }
@@ -320,6 +324,7 @@ public class PlayerController : MonoBehaviour
     private void SetVerticalVelocity()
     {
         if (isControllableY == false) return;
+        if (CurrentGrabState == GrabStates.CLIMBJUMP) return;
 
         var vertVel = inputY * moveSpeed * climbSpeedModifier;
         thisBody.velocity = new Vector2(thisBody.velocity.x, vertVel);
@@ -331,28 +336,50 @@ public class PlayerController : MonoBehaviour
         {
             if (jumpsLeft > 0)
             {
-                ApplyJumpForce(Vector2.up);
+                ApplyJumpForceAndSetState(false, Vector2.up);
                 jumpsLeft -= 1;
-                CurrentMovementState = MovementState.JUMP;
             }
         }
         else if (currentMovementState == MovementState.GRAB && jumpsLeft > 0)
         {
-            ApplyJumpForce(grabJumpDirection);
-            CurrentMovementState = MovementState.JUMP;
+            ApplyJumpForceAndSetState(true, grabJumpDirection);
+
         }
     }
 
-    private void ApplyJumpForce(Vector2 dir)
+    private void ApplyJumpForceAndSetState(bool isGrabJump, Vector2 dir)
     {
-        if (dir == Vector2.up)
+        if (isGrabJump == false)
         {
             thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+            CurrentMovementState = MovementState.JUMP;
         }
-        else
+        else if (isGrabJump == true)
         {
-            thisBody.velocity = new Vector2(dir.x * jumpForce, dir.y * jumpForce);
+            if (dir == Vector2.up)
+            {
+                //As this is a climb Jump, so no need to set the state to jump
+                StartCoroutine(WaitForJump(climbJumpTime));
+                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                CurrentMovementState = MovementState.GRAB;
+            }
+            else
+            {
+                thisBody.velocity = new Vector2(dir.x * jumpForce, dir.y * jumpForce);
+                CurrentMovementState = MovementState.JUMP;
+            }
         }
+    }
+
+    private IEnumerator<WaitForSeconds> WaitForJump(float time)
+    {
+        /*Sets the grab state to climb jump and then stops the change in state for
+        some time while the jump is carried out
+        After that time, change in grab state is allowed*/
+        CurrentGrabState = GrabStates.CLIMBJUMP;
+        isChangeInGrabStateEnabled = false;
+        yield return new WaitForSeconds(time);
+        isChangeInGrabStateEnabled = true;
     }
 
     private void JumpCancel()
@@ -523,7 +550,7 @@ public class PlayerController : MonoBehaviour
         else { grabInput = false; }
     }
 
-    private void CheckGrabInput()
+    private void ApplyGrab()
     {
         if (!canGrab) return;
 
@@ -535,6 +562,7 @@ public class PlayerController : MonoBehaviour
         {
             if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
             SetNormalValues();
+            Debug.Log("Normal Values are being set");
         }
     }
 
