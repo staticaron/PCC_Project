@@ -25,8 +25,7 @@ public class PlayerController : MonoBehaviour
                     canGrab = true;
                     break;
                 case MovementState.JUMP:
-                    if (currentGrabState == GrabStates.NONE) { canGrab = true; }
-                    else { canGrab = false; }
+                    canGrab = true;
                     break;
                 case MovementState.DASH:
                     canGrab = false;
@@ -39,7 +38,12 @@ public class PlayerController : MonoBehaviour
             currentMovementState = value;
         }
     }
-    public GrabStates currentGrabState = GrabStates.NONE;
+    public GrabStates _currentGrabState = GrabStates.NONE;
+    public GrabStates CurrentGrabState
+    {
+        get { return _currentGrabState; }
+        set { _currentGrabState = value; }
+    }
 
     //Delegates and Events
     public delegate void Dashed(bool started);
@@ -141,6 +145,11 @@ public class PlayerController : MonoBehaviour
     [Header("Grab Properties-----------------------------------------------------------------------")]
     [Tooltip("1 : Climb with same speed as that of run")]
     [SerializeField] private float climbSpeedModifier;
+    [SerializeField] private int maxStaminaPoints;
+    [SerializeField] private int currentStaminaPoints;
+    [SerializeField] private int holdStaminaConsumption;
+    [SerializeField] private int climbStaminaConsumption;
+    [SerializeField] private int climbJumpStaminaConsumption;
     [SerializeField] private bool grabInput;
     [SerializeField] private bool canGrab;
     [SerializeField] private Vector2 grabJumpDirection;
@@ -211,7 +220,7 @@ public class PlayerController : MonoBehaviour
         thisVelocity = thisBody.velocity;
         thisRotation = transform.rotation.eulerAngles;
 
-        //Regain Jump
+        //Regain Jump and stamina
         if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
         {
             if (CurrentMovementState == MovementState.JUMP) CurrentMovementState = MovementState.SIMPLE;
@@ -223,6 +232,8 @@ public class PlayerController : MonoBehaviour
         SetDash();
 
         if (CurrentMovementState == MovementState.GRAB) GetJumpDirection();
+        CalculateStamina();
+        if (CurrentMovementState == MovementState.GRAB) SetGrabState();
 
         //Maintain the jump count
         if ((groundCheckRealtime == true && oldGroundCheckRealtime == false) || (movableCheckFoot == true && oldMovableCheckFoot == false))
@@ -271,6 +282,26 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private void SetGrabState()
+    {
+        if (thisVelocity.y != 0) { CurrentGrabState = GrabStates.CLIMB; }
+        else CurrentGrabState = GrabStates.HOLD;
+    }
+
+    private void CalculateStamina()
+    {
+        if (groundCheckRealtime) { currentStaminaPoints = maxStaminaPoints; }
+
+        if (CurrentMovementState == MovementState.GRAB)
+        {
+            if (CurrentGrabState == GrabStates.HOLD) { currentStaminaPoints -= holdStaminaConsumption; }
+            else if (CurrentGrabState == GrabStates.CLIMB) { currentStaminaPoints -= climbStaminaConsumption; }
+            else if (CurrentGrabState == GrabStates.CLIMBJUMP) { currentStaminaPoints -= climbJumpStaminaConsumption; }
+        }
+
+        //Check for the percentage of the stamina and call event for low stamina
+    }
+
     private void GetInput()
     {
         inputX = playerMovementActionMap.General.Movement.ReadValue<float>();
@@ -301,6 +332,7 @@ public class PlayerController : MonoBehaviour
             if (jumpsLeft > 0)
             {
                 ApplyJumpForce(Vector2.up);
+                jumpsLeft -= 1;
                 CurrentMovementState = MovementState.JUMP;
             }
         }
@@ -321,7 +353,6 @@ public class PlayerController : MonoBehaviour
         {
             thisBody.velocity = new Vector2(dir.x * jumpForce, dir.y * jumpForce);
         }
-        jumpsLeft -= 1;
     }
 
     private void JumpCancel()
@@ -484,7 +515,7 @@ public class PlayerController : MonoBehaviour
     {
         if (!canGrab) return;
 
-        if (grabInput && handCheckRealtime)
+        if (grabInput && handCheckRealtime && currentStaminaPoints > 0)
         {
             SetValuesForGrab();
         }
