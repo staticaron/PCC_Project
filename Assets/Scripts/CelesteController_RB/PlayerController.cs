@@ -311,7 +311,6 @@ public class PlayerController : MonoBehaviour
             }
             else if (CurrentGrabState == GrabStates.CLIMBJUMP)
             {
-
                 //Only reduce the stamina points at the time of jump
                 if (staminaConsumptionEnabled == false) return;
 
