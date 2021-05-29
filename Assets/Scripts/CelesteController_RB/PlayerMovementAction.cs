@@ -1,4 +1,4 @@
-// GENERATED AUTOMATICALLY FROM 'Assets/Scripts/PlayerMovementAction.inputactions'
+// GENERATED AUTOMATICALLY FROM 'Assets/Scripts/CelesteController_RB/PlayerMovementAction.inputactions'
 
 using System;
 using System.Collections;
