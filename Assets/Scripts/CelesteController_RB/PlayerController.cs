@@ -219,6 +219,7 @@ public class PlayerController : MonoBehaviour
         handCheckRealtime = Physics2D.Raycast(hand.position, transform.right, handLength, grabMask);
         shoulderCheckRealtime = Physics2D.Raycast(shoulder.position, transform.right, shoulderLength, grabMask);
 
+
         //For Animations
         thisVelocity = thisBody.velocity;
         thisRotation = transform.rotation.eulerAngles;
