@@ -5059,6 +5059,7 @@ MonoBehaviour:
   isControllableY: 0
   moveSpeed: 10
   horizontalVelocityToSet: 0
+  isChangeInGrabStateEnabled: 1
   groundCheck: 0
   groundCheckRealtime: 0
   oldGroundCheckRealtime: 0
@@ -5112,7 +5113,8 @@ MonoBehaviour:
   currentStaminaPoints: 0
   holdStaminaConsumption: 1
   climbStaminaConsumption: 2
-  climbJumpStaminaConsumption: 30
+  climbJumpStaminaConsumption: 10
+  climbJumpTime: 0.15
   grabInput: 0
   canGrab: 0
   grabJumpDirection: {x: 0, y: 0}
