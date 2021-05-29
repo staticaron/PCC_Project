@@ -148,6 +148,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float climbSpeedModifier;
     [SerializeField] private int maxStaminaPoints;
     [SerializeField] private int currentStaminaPoints;
+    private bool staminaConsumptionEnabled = true;
     [SerializeField] private int holdStaminaConsumption;
     [SerializeField] private int climbStaminaConsumption;
     [SerializeField] private int climbJumpStaminaConsumption;
@@ -298,9 +299,25 @@ public class PlayerController : MonoBehaviour
 
         if (CurrentMovementState == MovementState.GRAB)
         {
-            if (CurrentGrabState == GrabStates.HOLD) { currentStaminaPoints -= holdStaminaConsumption; }
-            else if (CurrentGrabState == GrabStates.CLIMB) { currentStaminaPoints -= climbStaminaConsumption; }
-            else if (CurrentGrabState == GrabStates.CLIMBJUMP) { currentStaminaPoints -= climbJumpStaminaConsumption; }
+            if (CurrentGrabState == GrabStates.HOLD)
+            {
+                staminaConsumptionEnabled = true;
+                currentStaminaPoints -= holdStaminaConsumption;
+            }
+            else if (CurrentGrabState == GrabStates.CLIMB)
+            {
+                staminaConsumptionEnabled = true;
+                currentStaminaPoints -= climbStaminaConsumption;
+            }
+            else if (CurrentGrabState == GrabStates.CLIMBJUMP)
+            {
+                //Only reduce the stamina points at the time of jump
+                if (staminaConsumptionEnabled == false) return;
+
+                currentStaminaPoints -= climbJumpStaminaConsumption;
+                staminaConsumptionEnabled = false;
+            }
+
         }
 
         //Check for the percentage of the stamina and call event for low stamina
@@ -343,7 +360,6 @@ public class PlayerController : MonoBehaviour
         else if (currentMovementState == MovementState.GRAB && jumpsLeft > 0)
         {
             ApplyJumpForceAndSetState(true, grabJumpDirection);
-
         }
     }
 
@@ -554,15 +570,18 @@ public class PlayerController : MonoBehaviour
     {
         if (!canGrab) return;
 
-        if (grabInput && handCheckRealtime && currentStaminaPoints > 0)
+        //The Code Below is for grabbing, so it must not be called if climb jumping
+        if (CurrentGrabState != GrabStates.CLIMBJUMP)
         {
-            SetValuesForGrab();
-        }
-        else
-        {
-            if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
-            SetNormalValues();
-            Debug.Log("Normal Values are being set");
+            if (grabInput && handCheckRealtime && currentStaminaPoints > 0)
+            {
+                SetValuesForGrab();
+            }
+            else
+            {
+                if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
+                SetNormalValues();
+            }
         }
     }
 
