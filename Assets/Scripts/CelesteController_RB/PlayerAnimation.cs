@@ -14,11 +14,13 @@ public class PlayerAnimation : MonoBehaviour
         playerController = GetComponent<PlayerController>();
 
         PlayerController.EDashed += ToggleDashAnimation;
+        PlayerController.EGrabbed += ToggleGrabAnimation;
     }
 
     private void OnDisable()
     {
         PlayerController.EDashed -= ToggleDashAnimation;
+        PlayerController.EGrabbed -= ToggleGrabAnimation;
     }
 
     private void Update()
@@ -45,7 +47,7 @@ public class PlayerAnimation : MonoBehaviour
 
     private void SetVerticalMovementAndGroundCheckValues()
     {
-        int verticalMovement = (int)playerController.veriticalVelcity;
+        int verticalMovement = (int)playerController.thisVelocity.y;
         bool groundCheckValue = playerController.groundCheckRealtime;
 
         animator.SetBool("IsGrounded", groundCheckValue);
@@ -55,7 +57,7 @@ public class PlayerAnimation : MonoBehaviour
     public void RotatePlayer(bool shouldRotateLeft)
     {
         //If not in simple state then avoid rotation
-        if (playerController.currentMovementState != MovementState.SIMPLE) return;
+        if (playerController.CurrentMovementState != MovementState.SIMPLE) return;
 
         if (shouldRotateLeft) playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
         else playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
@@ -64,7 +66,7 @@ public class PlayerAnimation : MonoBehaviour
     public void RotatePlayer()
     {
         //If not in simple state then avoid rotation
-        if (playerController.currentMovementState != MovementState.SIMPLE) return;
+        if (playerController.CurrentMovementState != MovementState.SIMPLE && playerController.CurrentMovementState != MovementState.JUMP) return;
 
         if (this.playerController.inputX > 0)
         {
@@ -85,6 +87,17 @@ public class PlayerAnimation : MonoBehaviour
         else
         {
             dashParticleGO.Stop();
+        }
+    }
+
+    private void ToggleGrabAnimation(bool start)
+    {
+        if (start == true) { animator.SetTrigger("Grab"); animator.SetBool("IsGrabbing", true); }
+        else
+        {
+
+            animator.SetBool("IsGrabbing", false);
+
         }
     }
 }

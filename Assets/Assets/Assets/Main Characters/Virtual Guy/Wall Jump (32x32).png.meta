@@ -17,6 +17,18 @@ TextureImporter:
   - first:
       213: 21300008
     second: Wall Jump (32x32)_4
+  - first:
+      213: 3974224528455760076
+    second: Wall Jump (32x32)_0
+  - first:
+      213: 403085039841989221
+    second: Wall Jump (32x32)_1
+  - first:
+      213: -6018873884784744797
+    second: Wall Jump (32x32)_2
+  - first:
+      213: -674972067355074983
+    second: Wall Jump (32x32)_3
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -126,22 +138,43 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Wall Jump (32x32)_0
+      name: Wall Jump (32x32)_4
       rect:
         serializedVersion: 2
-        x: 0
+        x: 4
         y: 0
-        width: 32
+        width: 31
         height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 670992ad2379f474ca05bc682fc3085c
-      internalID: 21300000
+      spriteID: 3abb02cdcd4a93d4fbdd3800ae7df16b
+      internalID: 21300008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Wall Jump (32x32)_0
+      rect:
+        serializedVersion: 2
+        x: 38
+        y: 0
+        width: 31
+        height: 32
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cc8ff3cf628472730800000000000000
+      internalID: 3974224528455760076
       vertices: []
       indices: 
       edges: []
@@ -150,19 +183,19 @@ TextureImporter:
       name: Wall Jump (32x32)_1
       rect:
         serializedVersion: 2
-        x: 32
+        x: 71
         y: 0
-        width: 32
+        width: 31
         height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 755849edba41e724f8ad079c87e538fa
-      internalID: 21300002
+      spriteID: 5625e0645bb089500800000000000000
+      internalID: 403085039841989221
       vertices: []
       indices: 
       edges: []
@@ -171,19 +204,19 @@ TextureImporter:
       name: Wall Jump (32x32)_2
       rect:
         serializedVersion: 2
-        x: 64
+        x: 105
         y: 0
-        width: 32
+        width: 31
         height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: 97369efa078d58f4ca33b202f3e3a8b8
-      internalID: 21300004
+      spriteID: 3a6a785571aa87ca0800000000000000
+      internalID: -6018873884784744797
       vertices: []
       indices: 
       edges: []
@@ -192,40 +225,19 @@ TextureImporter:
       name: Wall Jump (32x32)_3
       rect:
         serializedVersion: 2
-        x: 96
+        x: 141
         y: 0
-        width: 32
+        width: 31
         height: 32
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       outline: []
       physicsShape: []
       tessellationDetail: 0
       bones: []
-      spriteID: a4c97991243bcb14d84177312c1dbd08
-      internalID: 21300006
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: Wall Jump (32x32)_4
-      rect:
-        serializedVersion: 2
-        x: 128
-        y: 0
-        width: 32
-        height: 32
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      outline: []
-      physicsShape: []
-      tessellationDetail: 0
-      bones: []
-      spriteID: 3abb02cdcd4a93d4fbdd3800ae7df16b
-      internalID: 21300008
+      spriteID: 95e5dfb1b7402a6f0800000000000000
+      internalID: -674972067355074983
       vertices: []
       indices: 
       edges: []
