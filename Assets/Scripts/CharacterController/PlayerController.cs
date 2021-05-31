@@ -354,7 +354,11 @@ public class PlayerController : MonoBehaviour
     {
         if (isControllableY == false) return;
         if (CurrentGrabState == GrabStates.CLIMBJUMP) return;
-        if (ledgeNearby == true) return;
+        if (ledgeNearby == true)
+        {
+            thisBody.velocity = new Vector2(thisBody.velocity.x, 0);
+            return;
+        }
 
         var vertVel = inputY * moveSpeed * climbSpeedModifier;
         thisBody.velocity = new Vector2(thisBody.velocity.x, vertVel);
