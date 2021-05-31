@@ -8,8 +8,6 @@ public enum GrabStates { NONE, HOLD, CLIMB, CLIMBJUMP };
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D), typeof(CapsuleCollider2D))]
 public class PlayerController : MonoBehaviour
 {
-    #region Data Items
-
     private PlayerMovementAction playerMovementActionMap;
     private Rigidbody2D thisBody;
 
@@ -138,6 +136,7 @@ public class PlayerController : MonoBehaviour
     [Header("Grab Properties-----------------------------------------------------------------------")]
     [Tooltip("1 : Climb with same speed as that of run \n 0 : Dont Climb")]
     [SerializeField] private float climbSpeedModifier;
+    [SerializeField] private float ledgeJumpForceModifier;
     [SerializeField] private int maxStaminaPoints;
     private int currentStaminaPoints;
     private bool staminaConsumptionEnabled = true;
@@ -159,8 +158,6 @@ public class PlayerController : MonoBehaviour
     circle collider is only active while dashing to smooth out the collision while dashing */
     private BoxCollider2D boxCollider;
     private CapsuleCollider2D roundCollider;
-
-    #endregion
 
     private void Awake()
     {
@@ -197,7 +194,6 @@ public class PlayerController : MonoBehaviour
         ApplyGrab();
 
         GroundCheck();
-
 
         ApplyDrag();
 
@@ -392,10 +388,18 @@ public class PlayerController : MonoBehaviour
         {
             if (dir == Vector2.up)
             {
-                //As this is a climb Jump, so no need to set the state to jump
-                StartCoroutine(WaitForJump(climbJumpTime));
-                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
-                CurrentMovementState = MovementState.GRAB;
+                if (ledgeNearby == false)
+                {
+                    //As this is a climb Jump, so no need to set the state to jump
+                    StartCoroutine(WaitForJump(climbJumpTime));
+                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                    CurrentMovementState = MovementState.GRAB;
+                }
+                else
+                {
+                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce * ledgeJumpForceModifier);
+                    CurrentMovementState = MovementState.JUMP;
+                }
             }
             else //This climb jump away from the wall in the air, so set the state accordingly
             {
