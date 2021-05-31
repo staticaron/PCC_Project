@@ -356,6 +356,21 @@ public class PlayerController : MonoBehaviour
         thisBody.velocity = new Vector2(thisBody.velocity.x, vertVel);
     }
 
+    private void Rotate()
+    {
+        //If not in simple state then avoid rotation
+        if (CurrentMovementState != MovementState.SIMPLE && CurrentMovementState != MovementState.JUMP) return;
+
+        if (this.playerController.inputX > 0)
+        {
+            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (playerController.inputX < 0)
+        {
+            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+    }
+
     private void Jump()
     {
         if (jumpEnabled == false) return;

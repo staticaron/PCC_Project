@@ -25,10 +25,7 @@ public class PlayerAnimation : MonoBehaviour
 
     private void Update()
     {
-        SetIdleMoveAnimation();
-        SetVerticalMovementAndGroundCheckValues();
-        SetJumpAnimation();
-        RotatePlayer();
+
     }
 
     private void SetIdleMoveAnimation()
