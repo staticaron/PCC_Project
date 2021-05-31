@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 
 public enum MovementState { SIMPLE, JUMP, DASH, GRAB };
 public enum GrabStates { NONE, HOLD, CLIMB, CLIMBJUMP };
+public enum AnimationState { IDLE, RUN, JUMP_GOINGUP, JUMP_GOINGDOWN, DASH, GRAB };
 
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D), typeof(CapsuleCollider2D))]
 public class PlayerController : MonoBehaviour
@@ -11,6 +12,7 @@ public class PlayerController : MonoBehaviour
     private PlayerMovementAction playerMovementActionMap;
     private Rigidbody2D thisBody;
 
+    [Header("States--------------------------------------------------------------------------------")]
     [SerializeField] private MovementState currentMovementState = MovementState.SIMPLE;
     public MovementState CurrentMovementState
     {
@@ -36,13 +38,30 @@ public class PlayerController : MonoBehaviour
             currentMovementState = value;
         }
     }
-    public GrabStates _currentGrabState = GrabStates.NONE;
+
+    [SerializeField] private GrabStates _currentGrabState = GrabStates.NONE;
     public GrabStates CurrentGrabState
     {
         get { return _currentGrabState; }
         set { _currentGrabState = value; }
     }
 
+    [SerializeField] private AnimationState _currentAnimationState = AnimationState.IDLE;
+    public AnimationState CurrentAnimationState
+    {
+        get { return _currentAnimationState; }
+        set
+        {
+            if (value == _currentAnimationState) return;
+
+            //If the current animation is jump going down or jump going up and the animation to set is not the same then this means jump has ended
+            if (_currentAnimationState == AnimationState.JUMP_GOINGDOWN || _currentAnimationState == AnimationState.JUMP_GOINGUP) { if (EJumped != null) EJumped(false); }
+            StateChanged(value);
+            _currentAnimationState = value;
+        }
+    }
+
+    #region DataItems
     //Delegates and Events
     public delegate void Dashed(bool started);
     public static event Dashed EDashed;
@@ -50,8 +69,11 @@ public class PlayerController : MonoBehaviour
     public delegate void Grabbed(bool started);
     public static event Grabbed EGrabbed;
 
-    public delegate void Jumped(bool sterted);
+    public delegate void Jumped(bool goingUp);
     public static event Jumped EJumped;
+
+    public delegate void Movement(bool isMoving);
+    public static event Movement EMovement;
 
     //The keyboard inputs for the specified axis
     [Header("Input Values")]
@@ -158,6 +180,7 @@ public class PlayerController : MonoBehaviour
     circle collider is only active while dashing to smooth out the collision while dashing */
     private BoxCollider2D boxCollider;
     private CapsuleCollider2D roundCollider;
+    #endregion
 
     private void Awake()
     {
@@ -200,6 +223,8 @@ public class PlayerController : MonoBehaviour
         ApplyDrag();
 
         RemoveFloatiness();
+
+        HandleAnimationEvents();
     }
 
     private void FixedUpdate()
@@ -361,7 +386,7 @@ public class PlayerController : MonoBehaviour
     private void Rotate()
     {
         //If not in simple state then avoid rotation
-        if (CurrentMovementState != MovementState.SIMPLE && CurrentMovementState != MovementState.JUMP) return;
+        if (!(CurrentAnimationState == AnimationState.IDLE || CurrentAnimationState == AnimationState.RUN || CurrentAnimationState == AnimationState.JUMP_GOINGDOWN || CurrentAnimationState == AnimationState.JUMP_GOINGUP)) return;
 
         if (this.inputX > 0)
         {
@@ -371,6 +396,63 @@ public class PlayerController : MonoBehaviour
         {
             transform.rotation = Quaternion.Euler(0, 180, 0);
         }
+    }
+
+    //IMP Called every frame
+    private void HandleAnimationEvents()
+    {
+        if (CurrentAnimationState == AnimationState.IDLE)
+        {
+            if (groundCheckRealtime)
+            {
+                if (inputX != 0)
+                {
+                    CurrentAnimationState = AnimationState.RUN;
+
+                }
+            }
+        }
+        else if (CurrentAnimationState == AnimationState.RUN)
+        {
+            if (groundCheckRealtime)
+            {
+                if (inputX == 0)
+                {
+                    CurrentAnimationState = AnimationState.IDLE;
+
+                }
+            }
+        }
+        else if (CurrentAnimationState == AnimationState.JUMP_GOINGUP)
+        {
+            //If falling on the ground then set the state to idle
+            if (groundCheckRealtime == true && oldGroundCheckRealtime == false) { CurrentAnimationState = AnimationState.IDLE; return; }
+
+            if (thisVelocity.y < 0)
+            {
+                CurrentAnimationState = AnimationState.JUMP_GOINGDOWN;
+            }
+        }
+        else if (CurrentAnimationState == AnimationState.JUMP_GOINGDOWN)
+        {
+            //If falling on the ground then set the state to idle
+            if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
+            {
+                CurrentAnimationState = AnimationState.IDLE;
+                return;
+            }
+
+            Debug.Log($"GroundCheckRealtime {groundCheckRealtime} OldGroundCheckRealtime {oldGroundCheckRealtime}");
+
+        }
+    }
+
+    private void StateChanged(AnimationState stateToSet)
+    {
+        if (stateToSet == AnimationState.IDLE) { if (EMovement != null) EMovement(false); Debug.Log("Movement Stopped"); }
+        else if (stateToSet == AnimationState.RUN) { if (EMovement != null) EMovement(true); }
+        else if (stateToSet == AnimationState.JUMP_GOINGUP) { if (EJumped != null) EJumped(true); }
+        else if (stateToSet == AnimationState.JUMP_GOINGDOWN) { if (EJumped != null) EJumped(false); }
     }
 
     private void Jump()
@@ -395,6 +477,8 @@ public class PlayerController : MonoBehaviour
     Climb jump are applied else normal jump takes place */
     private void ApplyJumpForceAndSetState(bool isGrabJump, Vector2 dir)
     {
+        CurrentAnimationState = AnimationState.JUMP_GOINGUP;
+
         //If normal jump, apply jump force normally
         if (isGrabJump == false)
         {
