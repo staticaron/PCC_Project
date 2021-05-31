@@ -123,6 +123,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool coyoteEnabled;
 
     [Header("Jump Values------------------------------------------------------------------------------")]
+    [SerializeField] private bool fixedJumpHeight;
     [SerializeField] private int numberOfJumps = 1;
     [SerializeField] private int jumpsLeft;
     [SerializeField] private float jumpForce = 20;
@@ -157,6 +158,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool canGrab;
     [SerializeField] private Vector2 grabJumpDirection;
     [SerializeField] private Vector2 tempGrabJumpDirection = new Vector2(1, 1);
+    [SerializeField] private bool ledgeNearby;
 
     //Colliders
     private BoxCollider2D boxCollider;
@@ -222,6 +224,16 @@ public class PlayerController : MonoBehaviour
         //For Animations
         thisVelocity = thisBody.velocity;
         thisRotation = transform.rotation.eulerAngles;
+
+        //Prevent climb if grabbing ledge
+        if (handCheckRealtime == true && shoulderCheckRealtime == false)
+        {
+            ledgeNearby = true;
+        }
+        else
+        {
+            ledgeNearby = false;
+        }
 
         //Regain Jump and stamina
         if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
@@ -342,6 +354,11 @@ public class PlayerController : MonoBehaviour
     {
         if (isControllableY == false) return;
         if (CurrentGrabState == GrabStates.CLIMBJUMP) return;
+        if (ledgeNearby == true)
+        {
+            thisBody.velocity = new Vector2(thisBody.velocity.x, 0);
+            return;
+        }
 
         var vertVel = inputY * moveSpeed * climbSpeedModifier;
         thisBody.velocity = new Vector2(thisBody.velocity.x, vertVel);
@@ -400,9 +417,8 @@ public class PlayerController : MonoBehaviour
 
     private void JumpCancel()
     {
-        //Cancel the jump if jumping
+        if (fixedJumpHeight == true) return;
         if (CurrentMovementState != MovementState.JUMP) return;
-
         if (thisBody.velocity.y < 0) return;
 
         thisBody.velocity = new Vector2(thisBody.velocity.x, thisBody.velocity.y * jumpCancelModifier);
