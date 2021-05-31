@@ -191,6 +191,8 @@ public class PlayerController : MonoBehaviour
 
         GetInput();
 
+        Rotate();
+
         ApplyGrab();
 
         GroundCheck();
@@ -361,13 +363,13 @@ public class PlayerController : MonoBehaviour
         //If not in simple state then avoid rotation
         if (CurrentMovementState != MovementState.SIMPLE && CurrentMovementState != MovementState.JUMP) return;
 
-        if (this.playerController.inputX > 0)
+        if (this.inputX > 0)
         {
-            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
+            transform.rotation = Quaternion.Euler(0, 0, 0);
         }
-        else if (playerController.inputX < 0)
+        else if (this.inputX < 0)
         {
-            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
+            transform.rotation = Quaternion.Euler(0, 180, 0);
         }
     }
 

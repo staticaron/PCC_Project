@@ -25,7 +25,8 @@ public class PlayerAnimation : MonoBehaviour
 
     private void Update()
     {
-
+        SetIdleMoveAnimation();
+        SetVerticalMovementAndGroundCheckValues();
     }
 
     private void SetIdleMoveAnimation()
@@ -58,21 +59,6 @@ public class PlayerAnimation : MonoBehaviour
 
         if (shouldRotateLeft) playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
         else playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-    }
-
-    public void RotatePlayer()
-    {
-        //If not in simple state then avoid rotation
-        if (playerController.CurrentMovementState != MovementState.SIMPLE && playerController.CurrentMovementState != MovementState.JUMP) return;
-
-        if (this.playerController.inputX > 0)
-        {
-            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-        else if (playerController.inputX < 0)
-        {
-            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
-        }
     }
 
     private void ToggleDashAnimation(bool start)
