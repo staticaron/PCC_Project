@@ -254,6 +254,7 @@ public class PlayerController : MonoBehaviour
         if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
         {
             if (CurrentMovementState == MovementState.JUMP) CurrentMovementState = MovementState.SIMPLE;
+            Debug.Log("Simple Set because of Landing");
             jumpsLeft = numberOfJumps;
         }
 
@@ -505,7 +506,7 @@ public class PlayerController : MonoBehaviour
             {
                 thisBody.velocity = new Vector2(dir.x * jumpForceAway, dir.y * jumpForceAway);
                 CurrentMovementState = MovementState.JUMP;
-                Debug.Log($"Jumped Sideways in direction : ({dir.x}, {dir.y})");
+                Debug.Log($"Jumped Sideways in direction : {dir} and state is {CurrentMovementState}");
             }
         }
     }
@@ -668,7 +669,11 @@ public class PlayerController : MonoBehaviour
         thisBody.drag = airDrag;
 
         //If another state was set before the dash is cancelled then dont set the simple state and let the current state be whatever it is
-        if (CurrentMovementState == MovementState.DASH) CurrentMovementState = MovementState.SIMPLE;
+        if (CurrentMovementState == MovementState.DASH)
+        {
+            CurrentMovementState = MovementState.SIMPLE;
+            Debug.Log("Simple Set because of Dash");
+        }
 
         if (EDashed != null) { EDashed(false); }
 
@@ -713,6 +718,7 @@ public class PlayerController : MonoBehaviour
             {
                 if (CurrentMovementState != MovementState.GRAB) return;
                 if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
+                Debug.Log("Simple Set because of Grab");
                 SetNormalValues();
                 isGrabbing = false;
             }
