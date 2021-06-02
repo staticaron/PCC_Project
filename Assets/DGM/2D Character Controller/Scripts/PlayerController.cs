@@ -54,8 +54,6 @@ public class PlayerController : MonoBehaviour
         {
             if (value == _currentAnimationState) return;
 
-            //If the current animation is jump going down or jump going up and the animation to set is not the same then this means jump has ended
-            if (_currentAnimationState == AnimationState.JUMP_GOINGDOWN || _currentAnimationState == AnimationState.JUMP_GOINGUP) { if (EJumped != null) EJumped(false); }
             StateChanged(value);
             _currentAnimationState = value;
         }
@@ -212,6 +210,8 @@ public class PlayerController : MonoBehaviour
     {
         SetValues();
 
+        HandleAnimationEvents();
+
         GetInput();
 
         Rotate();
@@ -224,7 +224,7 @@ public class PlayerController : MonoBehaviour
 
         RemoveFloatiness();
 
-        HandleAnimationEvents();
+        oldGroundCheckRealtime = groundCheckRealtime;
     }
 
     private void FixedUpdate()
@@ -265,8 +265,6 @@ public class PlayerController : MonoBehaviour
         if (CurrentMovementState == MovementState.GRAB) GetJumpDirection();
         CalculateStamina();
         if (CurrentMovementState == MovementState.GRAB) SetGrabState();
-
-        oldGroundCheckRealtime = groundCheckRealtime;
     }
 
     private void GetDashDirection()
@@ -411,6 +409,10 @@ public class PlayerController : MonoBehaviour
 
                 }
             }
+            else
+            {
+                CurrentAnimationState = AnimationState.JUMP_GOINGDOWN;
+            }
         }
         else if (CurrentAnimationState == AnimationState.RUN)
         {
@@ -421,6 +423,10 @@ public class PlayerController : MonoBehaviour
                     CurrentAnimationState = AnimationState.IDLE;
 
                 }
+            }
+            else
+            {
+                CurrentAnimationState = AnimationState.JUMP_GOINGDOWN;
             }
         }
         else if (CurrentAnimationState == AnimationState.JUMP_GOINGUP)
@@ -439,17 +445,13 @@ public class PlayerController : MonoBehaviour
             if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
             {
                 CurrentAnimationState = AnimationState.IDLE;
-                return;
             }
-
-            Debug.Log($"GroundCheckRealtime {groundCheckRealtime} OldGroundCheckRealtime {oldGroundCheckRealtime}");
-
         }
     }
 
     private void StateChanged(AnimationState stateToSet)
     {
-        if (stateToSet == AnimationState.IDLE) { if (EMovement != null) EMovement(false); Debug.Log("Movement Stopped"); }
+        if (stateToSet == AnimationState.IDLE) { if (EMovement != null) EMovement(false); }
         else if (stateToSet == AnimationState.RUN) { if (EMovement != null) EMovement(true); }
         else if (stateToSet == AnimationState.JUMP_GOINGUP) { if (EJumped != null) EJumped(true); }
         else if (stateToSet == AnimationState.JUMP_GOINGDOWN) { if (EJumped != null) EJumped(false); }

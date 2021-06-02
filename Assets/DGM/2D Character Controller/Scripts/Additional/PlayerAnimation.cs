@@ -10,7 +10,7 @@ public class PlayerAnimation : MonoBehaviour
     [SerializeField] private ParticleSystem dashParticleGO;
     [SerializeField] private List<string> _stateNames;
 
-    private void Start()
+    private void Awake()
     {
         animator = GetComponent<Animator>();
         playerController = GetComponent<PlayerController>();
@@ -29,10 +29,10 @@ public class PlayerAnimation : MonoBehaviour
         PlayerController.EMovement -= ToggleMovementState;
     }
 
-    void ToggleJumpAnimation(bool jumpStarted)
+    private void ToggleJumpAnimation(bool jumpStarted)
     {
-        if (jumpStarted) animator.Play("Launch");
-        else animator.Play("Fall");
+        if (jumpStarted) { animator.Play("Launch"); Debug.Log("Jump Started"); }
+        else { animator.Play("Fall"); Debug.Log("Jump Ended"); }
     }
 
     private void ToggleDashAnimation(bool start)
@@ -65,7 +65,7 @@ public class PlayerAnimation : MonoBehaviour
 
     private void ToggleGrabAnimation(bool start)
     {
-        if (start == true) { }
-        else { }
+        if (start == true) { Debug.Log("Grab Started"); }
+        else { Debug.Log("Grab Ended"); }
     }
 }
