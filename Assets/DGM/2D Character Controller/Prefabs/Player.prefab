@@ -4908,6 +4908,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   currentMovementState: 0
   _currentGrabState: 0
+  _currentAnimationState: 0
   inputX: 0
   inputY: 0
   thisVelocity: {x: 0, y: 0}
@@ -4953,7 +4954,9 @@ MonoBehaviour:
   dashRecoverTime: 0.3
   preDashRecoverTime: 0.2
   microscopicPauseTime: 0
+  isGrabbing: 0
   climbSpeedModifier: 1
+  ledgeJumpForceModifier: 0.5
   maxStaminaPoints: 300
   holdStaminaConsumption: 1
   climbStaminaConsumption: 2
@@ -4973,6 +4976,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashParticleGO: {fileID: 4327160912198556449}
+  _stateNames: []
 --- !u!212 &4327160912582216261
 SpriteRenderer:
   m_ObjectHideFlags: 0

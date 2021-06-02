@@ -68578,7 +68578,17 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4327160912582216262, guid: 66c59d7e16a7c134ba59a230461037d8,
         type: 3}
-      propertyPath: ledgeJumpForceModifier
+      propertyPath: maxStaminaPoints
+      value: 3000
+      objectReference: {fileID: 0}
+    - target: {fileID: 4327160912582216262, guid: 66c59d7e16a7c134ba59a230461037d8,
+        type: 3}
+      propertyPath: handLength
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 4327160912582216262, guid: 66c59d7e16a7c134ba59a230461037d8,
+        type: 3}
+      propertyPath: shoulderLength
       value: 0.5
       objectReference: {fileID: 0}
     m_RemovedComponents: []

@@ -89,11 +89,11 @@ public class PlayerController : MonoBehaviour
 
     //General Properties
     [Header("General Properties------------------------------------------------------------------------------")]
-    [HideInInspector] private bool isControllableX = true;
-    [HideInInspector] private bool isControllableY = false;
+    private bool isControllableX = true;
+    private bool isControllableY = false;
     [SerializeField] private float moveSpeed = 10;
-    [HideInInspector] private float horizontalVelocityToSet;
-    [HideInInspector] private bool isChangeInGrabStateEnabled = true;
+    private float horizontalVelocityToSet;
+    private bool isChangeInGrabStateEnabled = true;
 
     [Header("Checkers (Only for reference, Can't be edited)------------------------------------------------------------------------------")]
     [SerializeField] private bool groundCheck; //GroundCheck = GroundCheckRealtime + coyotiness
@@ -136,6 +136,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private int numberOfJumps = 1;
     private int jumpsLeft;
     [SerializeField] private float jumpForce = 20;
+    [SerializeField] private float jumpForceAway = 40;
     [Tooltip("The speed is reduced to this much of the current speed so as to cancel the jump \n( Note : No effect if fixedJumpHeight is enabled)")]
     [SerializeField] private float jumpCancelModifier = 0.5f;
 
@@ -154,6 +155,7 @@ public class PlayerController : MonoBehaviour
     private bool canDash;
 
     [Header("Grab Properties-----------------------------------------------------------------------")]
+    [SerializeField] private bool isGrabbing;
     [Tooltip("1 : Climb with same speed as that of run \n 0 : Dont Climb")]
     [SerializeField] private float climbSpeedModifier;
     [SerializeField] private float ledgeJumpForceModifier;
@@ -265,6 +267,7 @@ public class PlayerController : MonoBehaviour
         if (CurrentMovementState == MovementState.GRAB) GetJumpDirection();
         CalculateStamina();
         if (CurrentMovementState == MovementState.GRAB) SetGrabState();
+        else CurrentGrabState = GrabStates.NONE;
     }
 
     private void GetDashDirection()
@@ -384,7 +387,7 @@ public class PlayerController : MonoBehaviour
     private void Rotate()
     {
         //If not in simple state then avoid rotation
-        if (!(CurrentAnimationState == AnimationState.IDLE || CurrentAnimationState == AnimationState.RUN || CurrentAnimationState == AnimationState.JUMP_GOINGDOWN || CurrentAnimationState == AnimationState.JUMP_GOINGUP)) return;
+        if (CurrentMovementState != MovementState.SIMPLE && CurrentMovementState != MovementState.JUMP) return;
 
         if (this.inputX > 0)
         {
@@ -491,23 +494,18 @@ public class PlayerController : MonoBehaviour
         {
             if (dir == Vector2.up)
             {
-                if (ledgeNearby == false)
-                {
-                    //As this is a climb Jump, so no need to set the state to jump
-                    StartCoroutine(WaitForJump(climbJumpTime));
-                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
-                    CurrentMovementState = MovementState.GRAB;
-                }
-                else
-                {
-                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce * ledgeJumpForceModifier);
-                    CurrentMovementState = MovementState.JUMP;
-                }
+
+                //As this is a climb Jump, so no need to set the state to jump
+                StartCoroutine(WaitForJump(climbJumpTime));
+                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                CurrentMovementState = MovementState.GRAB;
+
             }
             else //This climb jump away from the wall in the air, so set the state accordingly
             {
-                thisBody.velocity = new Vector2(dir.x * jumpForce, dir.y * jumpForce);
+                thisBody.velocity = new Vector2(dir.x * jumpForceAway, dir.y * jumpForceAway);
                 CurrentMovementState = MovementState.JUMP;
+                Debug.Log($"Jumped Sideways in direction : ({dir.x}, {dir.y})");
             }
         }
     }
@@ -698,6 +696,7 @@ public class PlayerController : MonoBehaviour
         else { grabInput = false; }
     }
 
+    //IMP Called Every Frame
     private void ApplyGrab()
     {
         if (!canGrab) return;
@@ -708,11 +707,14 @@ public class PlayerController : MonoBehaviour
             if (grabInput && handCheckRealtime && currentStaminaPoints > 0)
             {
                 SetValuesForGrab();
+                isGrabbing = true;
             }
             else
             {
+                if (CurrentMovementState != MovementState.GRAB) return;
                 if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
                 SetNormalValues();
+                isGrabbing = false;
             }
         }
     }

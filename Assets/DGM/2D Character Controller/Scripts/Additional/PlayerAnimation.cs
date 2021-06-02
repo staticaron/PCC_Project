@@ -31,8 +31,8 @@ public class PlayerAnimation : MonoBehaviour
 
     private void ToggleJumpAnimation(bool jumpStarted)
     {
-        if (jumpStarted) { animator.Play("Launch"); Debug.Log("Jump Started"); }
-        else { animator.Play("Fall"); Debug.Log("Jump Ended"); }
+        if (jumpStarted) { animator.Play("Launch"); }
+        else { animator.Play("Fall"); }
     }
 
     private void ToggleDashAnimation(bool start)
@@ -40,12 +40,12 @@ public class PlayerAnimation : MonoBehaviour
         if (start == true)
         {
             dashParticleGO.Play();
-            Debug.Log("Dash Started");
+
         }
         else
         {
             dashParticleGO.Stop();
-            Debug.Log("Dash Ended");
+
         }
     }
 
@@ -54,18 +54,17 @@ public class PlayerAnimation : MonoBehaviour
         if (isMoving)
         {
             animator.Play("Run");
-            Debug.Log("Run Started");
+
         }
         else
         {
             animator.Play("Idle");
-            Debug.Log("Idle Started");
         }
     }
 
     private void ToggleGrabAnimation(bool start)
     {
-        if (start == true) { Debug.Log("Grab Started"); }
-        else { Debug.Log("Grab Ended"); }
+        if (start == true) { }
+        else { }
     }
 }
