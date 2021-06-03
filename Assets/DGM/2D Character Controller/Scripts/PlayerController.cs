@@ -27,7 +27,8 @@ public class PlayerController : MonoBehaviour
                     canGrab = true;
                     break;
                 case MovementState.JUMP:
-                    canGrab = true;
+                    if (CurrentGrabState == GrabStates.NONE) { canGrab = true; }
+                    else { canGrab = false; SetNormalValues(); }
                     break;
                 case MovementState.DASH:
                     canGrab = false;
@@ -262,7 +263,6 @@ public class PlayerController : MonoBehaviour
         if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
         {
             if (CurrentMovementState == MovementState.JUMP) CurrentMovementState = MovementState.SIMPLE;
-            Debug.Log("Simple Set because of Landing");
             jumpsLeft = numberOfJumps;
         }
 
@@ -526,7 +526,6 @@ public class PlayerController : MonoBehaviour
             {
                 thisBody.velocity = new Vector2(dir.x * jumpForceAway, dir.y * jumpForceAway);
                 CurrentMovementState = MovementState.JUMP;
-                Debug.Log($"Jumped Sideways in direction : {dir} and state is {CurrentMovementState}");
             }
         }
     }
@@ -691,11 +690,10 @@ public class PlayerController : MonoBehaviour
         {
             isChangeInMovementStateEnabled = true;
             CurrentMovementState = MovementState.SIMPLE;
-            CurrentAnimationState = AnimationState.IDLE;
-            Debug.Log("Simple Set because of Dash");
+            //If in air, movement down, if on ground play idle
+            if (groundCheckRealtime) { CurrentAnimationState = AnimationState.IDLE; }
+            else { CurrentAnimationState = AnimationState.JUMP_GOINGDOWN; }
         }
-
-        if (EDashed != null) { EDashed(false); }
 
         //Restore the colliders to original state
         boxCollider.enabled = true;
@@ -737,7 +735,6 @@ public class PlayerController : MonoBehaviour
             else
             {
                 if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
-                Debug.Log("Simple Set because of Grab");
                 SetNormalValues();
                 isGrabbing = false;
             }
