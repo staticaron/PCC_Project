@@ -19,6 +19,8 @@ public class PlayerController : MonoBehaviour
         get { return currentMovementState; }
         set
         {
+            if (isChangeInMovementStateEnabled == false) return;
+
             switch (value)
             {
                 case MovementState.SIMPLE:
@@ -29,6 +31,7 @@ public class PlayerController : MonoBehaviour
                     break;
                 case MovementState.DASH:
                     canGrab = false;
+                    isChangeInMovementStateEnabled = false;
                     break;
                 case MovementState.GRAB:
                     canGrab = true;
@@ -53,6 +56,10 @@ public class PlayerController : MonoBehaviour
         set
         {
             if (value == _currentAnimationState) return;
+
+            //If Current Animation State is Dash and the value is another state then this means dash
+            //has ended. 
+            if (_currentAnimationState == AnimationState.DASH) if (EDashed != null) EDashed(false);
 
             StateChanged(value);
             _currentAnimationState = value;
@@ -94,6 +101,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float moveSpeed = 10;
     private float horizontalVelocityToSet;
     private bool isChangeInGrabStateEnabled = true;
+    private bool isChangeInMovementStateEnabled = true;
 
     [Header("Checkers (Only for reference, Can't be edited)------------------------------------------------------------------------------")]
     [SerializeField] private bool groundCheck; //GroundCheck = GroundCheckRealtime + coyotiness
@@ -375,28 +383,33 @@ public class PlayerController : MonoBehaviour
     {
         if (isControllableY == false) return;
         if (CurrentGrabState == GrabStates.CLIMBJUMP) return;
-        if (ledgeNearby == true)
-        {
-            thisBody.velocity = new Vector2(thisBody.velocity.x, 0);
-            return;
-        }
 
         var vertVel = inputY * moveSpeed * climbSpeedModifier;
-        thisBody.velocity = new Vector2(thisBody.velocity.x, vertVel);
+        if (ledgeNearby)
+        {
+            thisBody.velocity = new Vector2(thisBody.velocity.x, Mathf.Clamp(vertVel, vertVel, 0));
+        }
+        else { thisBody.velocity = new Vector2(thisBody.velocity.x, vertVel); }
     }
 
     private void Rotate()
     {
-        //If not in simple state then avoid rotation
-        if (CurrentMovementState != MovementState.SIMPLE && CurrentMovementState != MovementState.JUMP) return;
-
-        if (this.inputX > 0)
+        //If in simple state, set the rotation according to the input else if in dash state set the rotation according to the movement direction
+        if (CurrentMovementState == MovementState.SIMPLE || CurrentMovementState == MovementState.JUMP)
         {
-            transform.rotation = Quaternion.Euler(0, 0, 0);
+            if (this.inputX > 0)
+            {
+                transform.rotation = Quaternion.Euler(0, 0, 0);
+            }
+            else if (this.inputX < 0)
+            {
+                transform.rotation = Quaternion.Euler(0, 180, 0);
+            }
         }
-        else if (this.inputX < 0)
+        else if (CurrentMovementState == MovementState.DASH)
         {
-            transform.rotation = Quaternion.Euler(0, 180, 0);
+            if (thisVelocity.x > 0) { transform.rotation = Quaternion.Euler(0, 0, 0); }
+            else if (thisVelocity.x < 0) { transform.rotation = Quaternion.Euler(0, 180, 0); }
         }
     }
 
@@ -459,6 +472,7 @@ public class PlayerController : MonoBehaviour
         else if (stateToSet == AnimationState.RUN) { if (EMovement != null) EMovement(true); }
         else if (stateToSet == AnimationState.JUMP_GOINGUP) { if (EJumped != null) EJumped(true); }
         else if (stateToSet == AnimationState.JUMP_GOINGDOWN) { if (EJumped != null) EJumped(false); }
+        else if (stateToSet == AnimationState.DASH) { if (EDashed != null) EDashed(true); }
     }
 
     private void Jump()
@@ -495,12 +509,18 @@ public class PlayerController : MonoBehaviour
         {
             if (dir == Vector2.up)
             {
-
-                //As this is a climb Jump, so no need to set the state to jump
-                StartCoroutine(WaitForJump(climbJumpTime));
-                thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
-                CurrentMovementState = MovementState.GRAB;
-
+                if (ledgeNearby == false)
+                {
+                    //As this is a climb Jump, so no need to set the state to jump
+                    StartCoroutine(WaitForJump(climbJumpTime));
+                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                    CurrentMovementState = MovementState.GRAB;
+                }
+                else
+                {
+                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce / 2);
+                    CurrentMovementState = MovementState.JUMP;
+                }
             }
             else //This climb jump away from the wall in the air, so set the state accordingly
             {
@@ -613,6 +633,7 @@ public class PlayerController : MonoBehaviour
         if (CurrentMovementState != MovementState.DASH)
         {
             CurrentMovementState = MovementState.DASH;
+            CurrentAnimationState = AnimationState.DASH;
 
             if (dashVector == new Vector2(1 * dashForce, 0) || dashVector == new Vector2(-1 * dashForce, 0))
             {
@@ -642,9 +663,6 @@ public class PlayerController : MonoBehaviour
             roundCollider.enabled = true;
             boxCollider.enabled = false;
 
-            //Trigger the event for anyone
-            if (EDashed != null) EDashed(true);
-
             //Manage dash count and canDash
             dashesLeft -= 1;
             if (dashesLeft <= 0) canDash = false;
@@ -671,7 +689,9 @@ public class PlayerController : MonoBehaviour
         //If another state was set before the dash is cancelled then dont set the simple state and let the current state be whatever it is
         if (CurrentMovementState == MovementState.DASH)
         {
+            isChangeInMovementStateEnabled = true;
             CurrentMovementState = MovementState.SIMPLE;
+            CurrentAnimationState = AnimationState.IDLE;
             Debug.Log("Simple Set because of Dash");
         }
 
@@ -716,7 +736,6 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                if (CurrentMovementState != MovementState.GRAB) return;
                 if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
                 Debug.Log("Simple Set because of Grab");
                 SetNormalValues();
