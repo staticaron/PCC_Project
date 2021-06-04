@@ -108,7 +108,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool groundCheck; //GroundCheck = GroundCheckRealtime + coyotiness
     [SerializeField] public bool groundCheckRealtime;
     [HideInInspector] private bool oldGroundCheckRealtime;
-    [SerializeField] public bool handCheckRealtime;
+    [SerializeField] private bool handCheckRealtime;
+    [SerializeField] private bool oldHandCheckRealtime;
     [SerializeField] private bool shoulderCheckRealtime;
     [SerializeField] private bool ledgeNearby;
 
@@ -167,6 +168,9 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool isGrabbing;
     [Tooltip("1 : Climb with same speed as that of run \n 0 : Dont Climb")]
     [SerializeField] private float climbSpeedModifier;
+    [Tooltip("1 means apply the force as jump force for the climb jump\n0 means apply no force")]
+    [SerializeField] private float climbJumpForceModifier;
+    [Tooltip("1 means apply the same force as the jump force for climbing the ledge\n0 means apply no force")]
     [SerializeField] private float ledgeJumpForceModifier;
     [SerializeField] private int maxStaminaPoints;
     private int currentStaminaPoints;
@@ -180,7 +184,7 @@ public class PlayerController : MonoBehaviour
     [Tooltip("The time by which a climb jump is expected to end since it was started \n(This is value that is set by testing)")]
     [SerializeField] private float climbJumpTime;
     private bool grabInput;
-    private bool canGrab;
+    [SerializeField] private bool canGrab = true;
     private Vector2 grabJumpDirection;  //This is the direction in which jump will happen if grabbing any object
     [Tooltip("Temporary Direction of jumping away from the wall. If the value is (1, 1) then jump force will be added in (-1, 1) if the grabbing on the right side and in (1, 1) if grabbing on the left side")]
     [SerializeField] private Vector2 tempGrabJumpDirection = new Vector2(1, 1);
@@ -236,6 +240,7 @@ public class PlayerController : MonoBehaviour
         RemoveFloatiness();
 
         oldGroundCheckRealtime = groundCheckRealtime;
+        oldHandCheckRealtime = handCheckRealtime;
     }
 
     private void FixedUpdate()
@@ -413,7 +418,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    //IMP Called every frame
     private void HandleAnimationEvents()
     {
         if (CurrentAnimationState == AnimationState.IDLE)
@@ -513,12 +517,12 @@ public class PlayerController : MonoBehaviour
                 {
                     //As this is a climb Jump, so no need to set the state to jump
                     StartCoroutine(WaitForJump(climbJumpTime));
-                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce);
+                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce * climbJumpForceModifier);
                     CurrentMovementState = MovementState.GRAB;
                 }
                 else
                 {
-                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce / 2);
+                    thisBody.velocity = new Vector2(thisBody.velocity.x, jumpForce * ledgeJumpForceModifier);
                     CurrentMovementState = MovementState.JUMP;
                 }
             }
@@ -602,8 +606,6 @@ public class PlayerController : MonoBehaviour
         {
             thisBody.drag = dashDrag;
         }
-
-        //TODO : Apply Drag here
     }
 
     //Can be called from another script (crystal) to replenish the dash
@@ -719,25 +721,24 @@ public class PlayerController : MonoBehaviour
         else { grabInput = false; }
     }
 
-    //IMP Called Every Frame
     private void ApplyGrab()
     {
+        if (handCheckRealtime == false && oldHandCheckRealtime == true)
+        {
+            canGrab = true;
+        }
+
         if (!canGrab) return;
 
         //The Code Below is for grabbing, so it must not be called if climb jumping
-        if (CurrentGrabState != GrabStates.CLIMBJUMP)
+        if (grabInput && handCheckRealtime && currentStaminaPoints > 0)
         {
-            if (grabInput && handCheckRealtime && currentStaminaPoints > 0)
-            {
-                SetValuesForGrab();
-                isGrabbing = true;
-            }
-            else
-            {
-                if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
-                SetNormalValues();
-                isGrabbing = false;
-            }
+            SetValuesForGrab();
+        }
+        else
+        {
+            if (CurrentMovementState == MovementState.GRAB) CurrentMovementState = MovementState.SIMPLE;
+            SetNormalValues();
         }
     }
 
@@ -748,6 +749,7 @@ public class PlayerController : MonoBehaviour
         isControllableX = false;
         isControllableY = true;
         overallGravityModifier = 0;
+        isGrabbing = true;
     }
 
     //Sets the normal values
@@ -756,6 +758,7 @@ public class PlayerController : MonoBehaviour
         isControllableX = true;
         isControllableY = false;
         overallGravityModifier = 1;
+        isGrabbing = false;
     }
 
     //Help Visuals

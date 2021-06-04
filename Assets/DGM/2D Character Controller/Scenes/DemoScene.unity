@@ -68591,6 +68591,16 @@ PrefabInstance:
       propertyPath: shoulderLength
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4327160912582216262, guid: 66c59d7e16a7c134ba59a230461037d8,
+        type: 3}
+      propertyPath: ledgeJumpForceModifier
+      value: 0.8
+      objectReference: {fileID: 0}
+    - target: {fileID: 4327160912582216262, guid: 66c59d7e16a7c134ba59a230461037d8,
+        type: 3}
+      propertyPath: climbJumpForceModifier
+      value: 0.8
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 66c59d7e16a7c134ba59a230461037d8, type: 3}
 --- !u!1 &1808251108
