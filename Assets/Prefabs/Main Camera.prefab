@@ -43,13 +43,13 @@ MonoBehaviour:
   m_GameObject: {fileID: 7899688021910630694}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 17e00c6d5e1d80a4cabd9d094a054459, type: 3}
+  m_Script: {fileID: 11500000, guid: a5a00c76aa9404346a2f6c148f579b50, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  normalSpeed: 5
-  maxSpeed: 10
-  maxOffset: 3
+  normalSpeed: 0
+  maxSpeed: 0
+  maxOffset: 0
 --- !u!20 &7899688021910630692
 Camera:
   m_ObjectHideFlags: 0

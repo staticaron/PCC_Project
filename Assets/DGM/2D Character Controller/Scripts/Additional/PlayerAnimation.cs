@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(PlayerController))]
 public class PlayerAnimation : MonoBehaviour
@@ -7,75 +8,31 @@ public class PlayerAnimation : MonoBehaviour
     private Animator animator;
     private PlayerController playerController;
     [SerializeField] private ParticleSystem dashParticleGO;
+    [SerializeField] private List<string> _stateNames;
 
-    private void Start()
+    private void Awake()
     {
         animator = GetComponent<Animator>();
         playerController = GetComponent<PlayerController>();
 
         PlayerController.EDashed += ToggleDashAnimation;
         PlayerController.EGrabbed += ToggleGrabAnimation;
+        PlayerController.EJumped += ToggleJumpAnimation;
+        PlayerController.EMovement += ToggleMovementState;
     }
 
     private void OnDisable()
     {
         PlayerController.EDashed -= ToggleDashAnimation;
         PlayerController.EGrabbed -= ToggleGrabAnimation;
+        PlayerController.EJumped -= ToggleJumpAnimation;
+        PlayerController.EMovement -= ToggleMovementState;
     }
 
-    private void Update()
+    private void ToggleJumpAnimation(bool jumpStarted)
     {
-        SetIdleMoveAnimation();
-        SetVerticalMovementAndGroundCheckValues();
-        SetJumpAnimation();
-        RotatePlayer();
-    }
-
-    private void SetIdleMoveAnimation()
-    {
-        int inputX = (int)playerController.inputX;
-        animator.SetInteger("HorizontalInput", inputX);
-    }
-
-    private void SetJumpAnimation()
-    {
-        if (Keyboard.current.cKey.wasPressedThisFrame)
-        {
-            animator.SetTrigger("Jump");
-        }
-    }
-
-    private void SetVerticalMovementAndGroundCheckValues()
-    {
-        int verticalMovement = (int)playerController.thisVelocity.y;
-        bool groundCheckValue = playerController.groundCheckRealtime;
-
-        animator.SetBool("IsGrounded", groundCheckValue);
-        animator.SetInteger("VerticalMovement", verticalMovement);
-    }
-
-    public void RotatePlayer(bool shouldRotateLeft)
-    {
-        //If not in simple state then avoid rotation
-        if (playerController.CurrentMovementState != MovementState.SIMPLE) return;
-
-        if (shouldRotateLeft) playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
-        else playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-    }
-
-    public void RotatePlayer()
-    {
-        //If not in simple state then avoid rotation
-        if (playerController.CurrentMovementState != MovementState.SIMPLE && playerController.CurrentMovementState != MovementState.JUMP) return;
-
-        if (this.playerController.inputX > 0)
-        {
-            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 0, 0);
-        }
-        else if (playerController.inputX < 0)
-        {
-            playerController.gameObject.transform.rotation = Quaternion.Euler(0, 180, 0);
-        }
+        if (jumpStarted) { animator.Play("Launch"); Debug.Log("Jump Started"); }
+        else { animator.Play("Fall"); Debug.Log("Jump Ended"); }
     }
 
     private void ToggleDashAnimation(bool start)
@@ -83,21 +40,33 @@ public class PlayerAnimation : MonoBehaviour
         if (start == true)
         {
             dashParticleGO.Play();
+            animator.Play("Fall");
+            Debug.Log("Dash Started");
         }
         else
         {
             dashParticleGO.Stop();
+            Debug.Log("Dash Ended");
+        }
+    }
+
+    private void ToggleMovementState(bool isMoving)
+    {
+        if (isMoving)
+        {
+            animator.Play("Run");
+            Debug.Log("Movement Started");
+        }
+        else
+        {
+            animator.Play("Idle");
+            Debug.Log("Movement Ended");
         }
     }
 
     private void ToggleGrabAnimation(bool start)
     {
-        if (start == true) { animator.SetTrigger("Grab"); animator.SetBool("IsGrabbing", true); }
-        else
-        {
-
-            animator.SetBool("IsGrabbing", false);
-
-        }
+        if (start == true) { animator.Play("Grab"); Debug.Log("Grab Started"); }
+        else { Debug.Log("Grab Ended"); }
     }
 }
