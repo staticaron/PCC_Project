@@ -40,6 +40,7 @@ public class PlayerAnimation : MonoBehaviour
         if (start == true)
         {
             dashParticleGO.Play();
+            animator.Play("Fall");
             Debug.Log("Dash Started");
         }
         else
@@ -65,7 +66,7 @@ public class PlayerAnimation : MonoBehaviour
 
     private void ToggleGrabAnimation(bool start)
     {
-        if (start == true) { Debug.Log("Grab Started"); }
+        if (start == true) { animator.Play("Grab"); Debug.Log("Grab Started"); }
         else { Debug.Log("Grab Ended"); }
     }
 }

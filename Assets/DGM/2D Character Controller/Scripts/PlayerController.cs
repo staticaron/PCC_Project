@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviour
             //If Current Animation State is Dash and the value is another state then this means dash
             //has ended. 
             if (_currentAnimationState == AnimationState.DASH) if (EDashed != null) EDashed(false);
+            if (_currentAnimationState == AnimationState.GRAB) if (EGrabbed != null) EGrabbed(false);
 
             StateChanged(value);
             _currentAnimationState = value;
@@ -427,7 +428,6 @@ public class PlayerController : MonoBehaviour
                 if (inputX != 0)
                 {
                     CurrentAnimationState = AnimationState.RUN;
-
                 }
             }
             else
@@ -468,6 +468,21 @@ public class PlayerController : MonoBehaviour
                 CurrentAnimationState = AnimationState.IDLE;
             }
         }
+        else if (CurrentAnimationState == AnimationState.DASH) { }
+        else if (CurrentAnimationState == AnimationState.GRAB)
+        {
+            if (isGrabbing == false)
+            {
+                if (CurrentMovementState == MovementState.DASH)
+                {
+                    CurrentAnimationState = AnimationState.DASH;
+                }
+                else
+                {
+                    CurrentAnimationState = AnimationState.IDLE;
+                }
+            }
+        }
     }
 
     private void StateChanged(AnimationState stateToSet)
@@ -477,6 +492,7 @@ public class PlayerController : MonoBehaviour
         else if (stateToSet == AnimationState.JUMP_GOINGUP) { if (EJumped != null) EJumped(true); }
         else if (stateToSet == AnimationState.JUMP_GOINGDOWN) { if (EJumped != null) EJumped(false); }
         else if (stateToSet == AnimationState.DASH) { if (EDashed != null) EDashed(true); }
+        else if (stateToSet == AnimationState.GRAB) { if (EGrabbed != null) EGrabbed(true); }
     }
 
     private void Jump()
@@ -725,7 +741,8 @@ public class PlayerController : MonoBehaviour
     {
         if (handCheckRealtime == false && oldHandCheckRealtime == true)
         {
-            canGrab = true;
+            //If the state is dash state then don't set can grab to true as ledge cannot be grabbed while dashing
+            if (CurrentMovementState != MovementState.DASH) canGrab = true;
         }
 
         if (!canGrab) return;
@@ -733,7 +750,8 @@ public class PlayerController : MonoBehaviour
         //The Code Below is for grabbing, so it must not be called if climb jumping
         if (grabInput && handCheckRealtime && currentStaminaPoints > 0)
         {
-            SetValuesForGrab();
+            SetGrabValues();
+            CurrentAnimationState = AnimationState.GRAB;
         }
         else
         {
@@ -743,7 +761,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //Sets the values favourable for grab
-    private void SetValuesForGrab()
+    private void SetGrabValues()
     {
         CurrentMovementState = MovementState.GRAB;
         isControllableX = false;
