@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 
 public enum MovementState { SIMPLE, JUMP, DASH, GRAB };
-public enum GrabStates { NONE, HOLD, CLIMB, CLIMBJUMP };
+public enum GrabState { NONE, HOLD, CLIMB, CLIMBJUMP };
 public enum AnimationState { IDLE, RUN, JUMP_GOINGUP, JUMP_GOINGDOWN, DASH, GRAB };
 
 [RequireComponent(typeof(Rigidbody2D), typeof(BoxCollider2D), typeof(CapsuleCollider2D))]
@@ -27,7 +27,7 @@ public class PlayerController : MonoBehaviour
                     canGrab = true;
                     break;
                 case MovementState.JUMP:
-                    if (CurrentGrabState == GrabStates.NONE) { canGrab = true; }
+                    if (CurrentGrabState == GrabState.NONE) { canGrab = true; }
                     else { canGrab = false; SetNormalValues(); }
                     break;
                 case MovementState.DASH:
@@ -43,8 +43,8 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    [SerializeField] private GrabStates _currentGrabState = GrabStates.NONE;
-    public GrabStates CurrentGrabState
+    [SerializeField] private GrabState _currentGrabState = GrabState.NONE;
+    public GrabState CurrentGrabState
     {
         get { return _currentGrabState; }
         set { _currentGrabState = value; }
@@ -282,7 +282,7 @@ public class PlayerController : MonoBehaviour
         if (CurrentMovementState == MovementState.GRAB) GetJumpDirection();
         CalculateStamina();
         if (CurrentMovementState == MovementState.GRAB) SetGrabState();
-        else CurrentGrabState = GrabStates.NONE;
+        else CurrentGrabState = GrabState.NONE;
     }
 
     private void GetDashDirection()
@@ -329,8 +329,8 @@ public class PlayerController : MonoBehaviour
     {
         if (isChangeInGrabStateEnabled == false) return;
 
-        if (thisVelocity.y != 0) { CurrentGrabState = GrabStates.CLIMB; }
-        else CurrentGrabState = GrabStates.HOLD;
+        if (thisVelocity.y != 0) { CurrentGrabState = GrabState.CLIMB; }
+        else CurrentGrabState = GrabState.HOLD;
     }
 
     private void CalculateStamina()
@@ -346,17 +346,17 @@ public class PlayerController : MonoBehaviour
 
         if (CurrentMovementState == MovementState.GRAB)
         {
-            if (CurrentGrabState == GrabStates.HOLD)
+            if (CurrentGrabState == GrabState.HOLD)
             {
                 staminaConsumptionEnabled = true;
                 currentStaminaPoints -= holdStaminaConsumption;
             }
-            else if (CurrentGrabState == GrabStates.CLIMB)
+            else if (CurrentGrabState == GrabState.CLIMB)
             {
                 staminaConsumptionEnabled = true;
                 currentStaminaPoints -= climbStaminaConsumption;
             }
-            else if (CurrentGrabState == GrabStates.CLIMBJUMP)
+            else if (CurrentGrabState == GrabState.CLIMBJUMP)
             {
                 //Only reduce the stamina points at the time of jump
                 if (staminaConsumptionEnabled == false) return;
@@ -388,7 +388,7 @@ public class PlayerController : MonoBehaviour
     private void SetVerticalVelocity()
     {
         if (isControllableY == false) return;
-        if (CurrentGrabState == GrabStates.CLIMBJUMP) return;
+        if (CurrentGrabState == GrabState.CLIMBJUMP) return;
 
         var vertVel = inputY * moveSpeed * climbSpeedModifier;
         if (ledgeNearby)
@@ -479,7 +479,8 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    CurrentAnimationState = AnimationState.IDLE;
+                    if (groundCheckRealtime == false) CurrentAnimationState = AnimationState.JUMP_GOINGUP;
+                    else CurrentAnimationState = AnimationState.IDLE;
                 }
             }
         }
@@ -556,10 +557,12 @@ public class PlayerController : MonoBehaviour
         /*Sets the grab state to climb jump and then stops the change in state for
         some time while the jump is carried out
         After that time, change in grab state is allowed and state is set according to the situation*/
-        CurrentGrabState = GrabStates.CLIMBJUMP;
+        CurrentGrabState = GrabState.CLIMBJUMP;
+        CurrentAnimationState = AnimationState.JUMP_GOINGUP;
         isChangeInGrabStateEnabled = false;
         yield return new WaitForSeconds(time);
         isChangeInGrabStateEnabled = true;
+        CurrentAnimationState = AnimationState.GRAB;
     }
 
     private void JumpCancel()
@@ -751,7 +754,7 @@ public class PlayerController : MonoBehaviour
         if (grabInput && handCheckRealtime && currentStaminaPoints > 0)
         {
             SetGrabValues();
-            CurrentAnimationState = AnimationState.GRAB;
+            if (CurrentGrabState != GrabState.CLIMBJUMP) CurrentAnimationState = AnimationState.GRAB;
         }
         else
         {

@@ -4921,6 +4921,7 @@ MonoBehaviour:
   groundCheck: 0
   groundCheckRealtime: 0
   handCheckRealtime: 0
+  oldHandCheckRealtime: 0
   shoulderCheckRealtime: 0
   ledgeNearby: 0
   foot: {fileID: 4327160911110871432}
@@ -4948,6 +4949,7 @@ MonoBehaviour:
   fixedJumpHeight: 0
   numberOfJumps: 2
   jumpForce: 20
+  jumpForceAway: 40
   jumpCancelModifier: 0.5
   numberOfDashes: 1
   dashForce: 3000
@@ -4956,12 +4958,14 @@ MonoBehaviour:
   microscopicPauseTime: 0
   isGrabbing: 0
   climbSpeedModifier: 1
-  ledgeJumpForceModifier: 0.5
-  maxStaminaPoints: 300
+  climbJumpForceModifier: 0.8
+  ledgeJumpForceModifier: 0.8
+  maxStaminaPoints: 500
   holdStaminaConsumption: 1
   climbStaminaConsumption: 2
   climbJumpStaminaConsumption: 40
   climbJumpTime: 0.3
+  canGrab: 1
   tempGrabJumpDirection: {x: 1, y: 1}
 --- !u!114 &4327160912582216264
 MonoBehaviour:
