@@ -99,9 +99,9 @@ public class PlayerController : MonoBehaviour
 
     //General Properties
     [Header("General Properties------------------------------------------------------------------------------")]
+    [SerializeField] private float moveSpeed = 10;
     private bool isControllableX = true;
     private bool isControllableY = false;
-    [SerializeField] private float moveSpeed = 10;
     private float horizontalVelocityToSet;
     private bool isChangeInGrabStateEnabled = true;
     private bool isChangeInMovementStateEnabled = true;

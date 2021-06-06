@@ -2,18 +2,15 @@
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
 
-[RequireComponent(typeof(PlayerController))]
+[RequireComponent(typeof(Animator))]
 public class PlayerAnimation : MonoBehaviour
 {
     private Animator animator;
-    private PlayerController playerController;
     [SerializeField] private ParticleSystem dashParticleGO;
-    [SerializeField] private List<string> _stateNames;
 
     private void Awake()
     {
         animator = GetComponent<Animator>();
-        playerController = GetComponent<PlayerController>();
 
         PlayerController.EDashed += ToggleDashAnimation;
         PlayerController.EGrabbed += ToggleGrabAnimation;

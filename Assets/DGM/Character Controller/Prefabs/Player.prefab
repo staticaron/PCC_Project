@@ -1579,7 +1579,7 @@ ParticleSystem:
     uvChannelMask: -1
     rowMode: 1
     sprites:
-    - sprite: {fileID: 21300000, guid: 0b4768f2ab470f44ca33fa59836a0774, type: 3}
+    - sprite: {fileID: 21300002, guid: a4ad2fa0e62e2aa4e89d37c6ba997db6, type: 3}
     flipU: 0
     flipV: 0
   VelocityModule:
@@ -4932,8 +4932,8 @@ MonoBehaviour:
   footVisualization: 1
   hand: {fileID: 4327160911034168962}
   shoulder: {fileID: 4327160911376183348}
-  handLength: 0.45
-  shoulderLength: 0.45
+  handLength: 0.5
+  shoulderLength: 0.5
   grabMask:
     serializedVersion: 2
     m_Bits: 3072
@@ -4946,7 +4946,7 @@ MonoBehaviour:
   grabDrag: 8
   coyoteTime: 0.2
   fixedJumpHeight: 0
-  numberOfJumps: 2
+  numberOfJumps: 1
   jumpForce: 20
   jumpForceAway: 40
   jumpCancelModifier: 0.5
@@ -5005,12 +5005,12 @@ SpriteRenderer:
   m_SortingLayerID: -406937361
   m_SortingLayer: 1
   m_SortingOrder: 0
-  m_Sprite: {fileID: 21300000, guid: 40de9a8703e2e5a47882b0b86451c741, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 8a989869677e8a14caeb2b3d21b4faa6, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 0.32, y: 0.32}
+  m_Size: {x: 2, y: 2}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -5055,7 +5055,7 @@ BoxCollider2D:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
     oldSize: {x: 2, y: 2}
-    newSize: {x: 0.32, y: 0.32}
+    newSize: {x: 2, y: 2}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -5111,4 +5111,3 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   dashParticleGO: {fileID: 4327160912198556449}
-  _stateNames: []
