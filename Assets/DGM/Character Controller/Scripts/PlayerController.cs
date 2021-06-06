@@ -247,8 +247,8 @@ public class PlayerController : MonoBehaviour
 
     private void FixedUpdate()
     {
-        if (runEnabled) SetHorizontalVelocity();
-         SetVerticalVelocity();
+        SetHorizontalVelocity();
+        SetVerticalVelocity();
     }
 
     private void SetValues()
@@ -381,7 +381,8 @@ public class PlayerController : MonoBehaviour
     {
         if (isControllableX == false) return;
 
-        horizontalVelocityToSet = inputX * moveSpeed;
+        if(runEnabled == true){horizontalVelocityToSet = inputX * moveSpeed;}
+        else {horizontalVelocityToSet = 0;}
 
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
