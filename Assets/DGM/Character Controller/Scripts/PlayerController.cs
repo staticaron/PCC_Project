@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -70,6 +70,7 @@ public class PlayerController : MonoBehaviour
 
     #region DataItems
     //Delegates and Events
+    
     public delegate void Dashed(bool started);
     public static event Dashed EDashed;
 
@@ -247,7 +248,7 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
         if (runEnabled) SetHorizontalVelocity();
-        if (climbEnabled) SetVerticalVelocity();
+         SetVerticalVelocity();
     }
 
     private void SetValues()
@@ -390,7 +391,10 @@ public class PlayerController : MonoBehaviour
         if (isControllableY == false) return;
         if (CurrentGrabState == GrabState.CLIMBJUMP) return;
 
-        var vertVel = inputY * moveSpeed * climbSpeedModifier;
+        float vertVel;
+        if(climbEnabled == false){vertVel = 0;}
+        else{vertVel = inputY * moveSpeed * climbSpeedModifier;}
+        
         if (ledgeNearby)
         {
             thisBody.velocity = new Vector2(thisBody.velocity.x, Mathf.Clamp(vertVel, vertVel, 0));
