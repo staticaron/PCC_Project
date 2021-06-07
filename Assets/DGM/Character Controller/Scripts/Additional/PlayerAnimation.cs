@@ -5,6 +5,12 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Animator))]
 public class PlayerAnimation : MonoBehaviour
 {
+    private const string LauchStateName = "Launch";
+    private const string FallStateName = "Fall";
+    private const string RunStateName = "Run";
+    private const string IdleStateName = "Idle";
+    private const string GrabStateName = "Grab";
+
     private Animator animator;
     [SerializeField] private ParticleSystem dashParticleGO;
 
@@ -28,8 +34,8 @@ public class PlayerAnimation : MonoBehaviour
 
     private void ToggleJumpAnimation(bool jumpStarted)
     {
-        if (jumpStarted) { animator.Play("Launch");  }
-        else { animator.Play("Fall");}
+        if (jumpStarted) { animator.Play(LauchStateName); }
+        else { animator.Play(FallStateName); }
     }
 
     private void ToggleDashAnimation(bool start)
@@ -37,7 +43,7 @@ public class PlayerAnimation : MonoBehaviour
         if (start == true)
         {
             dashParticleGO.Play();
-            animator.Play("Fall");
+            animator.Play(FallStateName);
         }
         else
         {
@@ -49,17 +55,16 @@ public class PlayerAnimation : MonoBehaviour
     {
         if (isMoving)
         {
-            animator.Play("Run");
+            animator.Play(RunStateName);
         }
         else
         {
-            animator.Play("Idle");
+            animator.Play(IdleStateName);
         }
     }
 
     private void ToggleGrabAnimation(bool start)
     {
-        if (start == true) { animator.Play("Grab"); }
-        else {  }
+        if (start == true) { animator.Play(GrabStateName); }
     }
 }

@@ -63,14 +63,14 @@ public class PlayerController : MonoBehaviour
             if (_currentAnimationState == AnimationState.DASH) if (EDashed != null) EDashed(false);
             if (_currentAnimationState == AnimationState.GRAB) if (EGrabbed != null) EGrabbed(false);
 
-            StateChanged(value);
+            ChangeState(value);
             _currentAnimationState = value;
         }
     }
 
     #region DataItems
     //Delegates and Events
-    
+
     public delegate void Dashed(bool started);
     public static event Dashed EDashed;
 
@@ -381,8 +381,8 @@ public class PlayerController : MonoBehaviour
     {
         if (isControllableX == false) return;
 
-        if(runEnabled == true){horizontalVelocityToSet = inputX * moveSpeed;}
-        else {horizontalVelocityToSet = 0;}
+        if (runEnabled == true) { horizontalVelocityToSet = inputX * moveSpeed; }
+        else { horizontalVelocityToSet = 0; }
 
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
@@ -393,9 +393,9 @@ public class PlayerController : MonoBehaviour
         if (CurrentGrabState == GrabState.CLIMBJUMP) return;
 
         float vertVel;
-        if(climbEnabled == false){vertVel = 0;}
-        else{vertVel = inputY * moveSpeed * climbSpeedModifier;}
-        
+        if (climbEnabled == false) { vertVel = 0; }
+        else { vertVel = inputY * moveSpeed * climbSpeedModifier; }
+
         if (ledgeNearby)
         {
             thisBody.velocity = new Vector2(thisBody.velocity.x, Mathf.Clamp(vertVel, vertVel, 0));
@@ -484,14 +484,14 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    if (groundCheckRealtime == false) CurrentAnimationState = AnimationState.JUMP_GOINGUP;
+                    if (groundCheckRealtime == false) { CurrentAnimationState = AnimationState.JUMP_GOINGUP; }
                     else CurrentAnimationState = AnimationState.IDLE;
                 }
             }
         }
     }
 
-    private void StateChanged(AnimationState stateToSet)
+    private void ChangeState(AnimationState stateToSet)
     {
         if (stateToSet == AnimationState.IDLE) { if (EMovement != null) EMovement(false); }
         else if (stateToSet == AnimationState.RUN) { if (EMovement != null) EMovement(true); }
@@ -567,7 +567,7 @@ public class PlayerController : MonoBehaviour
         isChangeInGrabStateEnabled = false;
         yield return new WaitForSeconds(time);
         isChangeInGrabStateEnabled = true;
-        CurrentAnimationState = AnimationState.GRAB;
+        if (isGrabbing) CurrentAnimationState = AnimationState.GRAB;    //Dont Set the state to grab state if climb jump doesnt leads to grabbing
     }
 
     private void JumpCancel()

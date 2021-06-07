@@ -6,9 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/Scenes/Level_MovingPlatform.unity
-    guid: 2bbef2a3d866a7746b5540d2bf3aae8c
-  - enabled: 1
-    path: Assets/Scenes/Level_Base.unity
-    guid: 2ff256e77b6fe8744b69d48c6295a749
+    path: Assets/DGM/Character Controller/Scenes/DemoScene.unity
+    guid: 2f6135e20199cf347b9c32cf0491320f
   m_configObjects: {}
