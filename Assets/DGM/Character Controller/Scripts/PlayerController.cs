@@ -96,6 +96,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool jumpEnabled;
     [SerializeField] private bool dashEnabled;
     [SerializeField] private bool grabEnabled;
+    [Tooltip("Enable if interaction with moving platforms is needed")]
+    [SerializeField] private bool movingPlatformEnabled;
 
     //General Properties
     [Header("General Properties------------------------------------------------------------------------------")]
@@ -229,6 +231,8 @@ public class PlayerController : MonoBehaviour
         SetValues();
 
         HandleAnimationEvents();
+
+        GetMovingPlatformVelocity();
 
         GetInput();
 
@@ -376,6 +380,13 @@ public class PlayerController : MonoBehaviour
     {
         inputX = playerMovementActionMap.General.Movement.ReadValue<float>();
         inputY = playerMovementActionMap.General.VerticalMovement.ReadValue<float>();
+    }
+
+    private void GetMovingPlatformVelocity()
+    {
+        if (movingPlatformEnabled == false) return;
+
+        //Get the velocity of the platform;
     }
 
     private void SetHorizontalVelocity()
