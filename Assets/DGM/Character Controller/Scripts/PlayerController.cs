@@ -145,6 +145,7 @@ public class PlayerController : MonoBehaviour
     [Header("Jump Properties------------------------------------------------------------------------------")]
     [Tooltip("If true, the jump will be of fixed height, else will depend on the duration of the key press")]
     [SerializeField] private bool fixedJumpHeight;
+    [SerializeField] private bool canJumpInMidAir;
     [SerializeField] private int numberOfJumps = 1;
     private int jumpsLeft;
     [SerializeField] private float jumpForce = 20;
@@ -507,10 +508,21 @@ public class PlayerController : MonoBehaviour
 
         if (CurrentMovementState == MovementState.SIMPLE || CurrentMovementState == MovementState.JUMP)
         {
-            if (jumpsLeft > 0)
+            if (canJumpInMidAir)
             {
-                ApplyJumpForceAndSetState(false, Vector2.up);
-                jumpsLeft -= 1;
+                if (jumpsLeft > 0)
+                {
+                    ApplyJumpForceAndSetState(false, Vector2.up);
+                    jumpsLeft -= 1;
+                }
+            }
+            else
+            {
+                if (groundCheck)
+                {
+                    ApplyJumpForceAndSetState(false, Vector2.up);
+                    jumpsLeft -= 1;
+                }
             }
         }
         else if (currentMovementState == MovementState.GRAB)
