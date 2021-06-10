@@ -6,6 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/DGM/Character Controller/Scenes/DemoScene.unity
+    path: Assets/DGM/PCC/Scenes/DemoScene.unity
     guid: 2f6135e20199cf347b9c32cf0491320f
   m_configObjects: {}
