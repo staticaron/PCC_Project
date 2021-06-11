@@ -4917,6 +4917,7 @@ MonoBehaviour:
   jumpEnabled: 1
   dashEnabled: 1
   grabEnabled: 1
+  movingPlatformEnabled: 1
   moveSpeed: 10
   groundCheck: 0
   groundCheckRealtime: 0
@@ -4924,11 +4925,16 @@ MonoBehaviour:
   oldHandCheckRealtime: 0
   shoulderCheckRealtime: 0
   ledgeNearby: 0
+  movingPlatformCheckFoot: 0
+  movingPlatformCheckHand: 0
   foot: {fileID: 4327160911110871432}
   footLength: 0.5
   groundMask:
     serializedVersion: 2
     m_Bits: 1024
+  movingPlatformMask:
+    serializedVersion: 2
+    m_Bits: 2048
   footVisualization: 1
   hand: {fileID: 4327160911034168962}
   shoulder: {fileID: 4327160911376183348}
@@ -4946,6 +4952,7 @@ MonoBehaviour:
   grabDrag: 8
   coyoteTime: 0.2
   fixedJumpHeight: 0
+  canJumpInMidAir: 0
   numberOfJumps: 1
   jumpForce: 20
   jumpForceAway: 40
@@ -5032,7 +5039,7 @@ Rigidbody2D:
   m_LinearDrag: 0
   m_AngularDrag: 0.05
   m_GravityScale: 1
-  m_Material: {fileID: 6200000, guid: 33743542af77b644585ee0d0b58f5de0, type: 2}
+  m_Material: {fileID: 0}
   m_Interpolate: 0
   m_SleepingMode: 1
   m_CollisionDetection: 1
@@ -5046,7 +5053,7 @@ BoxCollider2D:
   m_GameObject: {fileID: 4327160912582216259}
   m_Enabled: 1
   m_Density: 1
-  m_Material: {fileID: 6200000, guid: 33743542af77b644585ee0d0b58f5de0, type: 2}
+  m_Material: {fileID: 0}
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0

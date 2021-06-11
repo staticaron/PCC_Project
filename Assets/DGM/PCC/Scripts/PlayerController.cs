@@ -123,7 +123,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private Transform foot;
     [SerializeField] private float footLength;
     [SerializeField] private LayerMask groundMask;
-    [SerializeField] private LayerMask movingPlatformMask;
     [SerializeField] private bool footVisualization;
 
     [Header("Hand Properties------------------------------------------------------------------------------")]
@@ -134,8 +133,6 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Objects in this layer can be grabbed")]
     [SerializeField] private LayerMask grabMask;
     [SerializeField] private bool handVisualization;
-
-    private Collider2D movingPlatformFoot, movingPlatformHand;
 
     [Header("Gravity Properties-------------------------------------------------------------------------")]
     [SerializeField] private float fallGravityModifier = 10;
@@ -198,6 +195,11 @@ public class PlayerController : MonoBehaviour
     [Tooltip("Temporary Direction of jumping away from the wall. If the value is (1, 1) then jump force will be added in (-1, 1) if the grabbing on the right side and in (1, 1) if grabbing on the left side")]
     [SerializeField] private Vector2 tempGrabJumpDirection = new Vector2(1, 1);
 
+    [Header("Movable Platform Properties")]
+    [SerializeField] private LayerMask movablePlatformMask;
+    private Vector2 platformVelocity;
+    [SerializeField] Collider2D movingCollider;
+
     /*Colliders, box Collider is the normal collider active all the time except while dashing
     circle collider is only active while dashing to smooth out the collision while dashing */
     private BoxCollider2D boxCollider;
@@ -250,7 +252,7 @@ public class PlayerController : MonoBehaviour
 
         RemoveFloatiness();
 
-        oldGroundCheckRealtime = groundCheckRealtime;
+        oldGroundCheckRealtime = (groundCheckRealtime || movingPlatformCheckFoot);
         oldHandCheckRealtime = handCheckRealtime;
     }
 
@@ -269,12 +271,20 @@ public class PlayerController : MonoBehaviour
 
         if (movingPlatformEnabled)
         {
-            var movingPlatformHand = Physics2D.Raycast(hand.position, transform.right, handLength, movingPlatformMask);
-            var movingPlatformFoot = Physics2D.Raycast(foot.position, -transform.up, footLength, movingPlatformMask);
+            var movingPlatformHand = Physics2D.Raycast(hand.position, transform.right, handLength, movablePlatformMask);
+            var movingPlatformFoot = Physics2D.Raycast(foot.position, -transform.up, footLength, movablePlatformMask);
             movingPlatformCheckFoot = (bool)movingPlatformFoot;
             movingPlatformCheckHand = (bool)movingPlatformHand;
-            this.movingPlatformFoot = movingPlatformFoot.collider;
-            this.movingPlatformHand = movingPlatformHand.collider;
+
+            if (movingPlatformCheckFoot == true)
+            {
+                this.movingCollider = movingPlatformFoot.collider;
+            }
+            else
+            {
+                this.movingCollider = movingPlatformHand.collider;
+                //Automatically handles the case of no colliders.
+            }
         }
 
         thisVelocity = thisBody.velocity;
@@ -285,7 +295,7 @@ public class PlayerController : MonoBehaviour
         else { ledgeNearby = false; }
 
         //Regain Jump if touched the ground and reset the jumpsLeft
-        if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
+        if ((groundCheckRealtime == true || movingPlatformCheckFoot == true) && oldGroundCheckRealtime == false)
         {
             if (CurrentMovementState == MovementState.JUMP) CurrentMovementState = MovementState.SIMPLE;
             jumpsLeft = numberOfJumps;
@@ -393,19 +403,21 @@ public class PlayerController : MonoBehaviour
         inputY = playerMovementActionMap.General.VerticalMovement.ReadValue<float>();
     }
 
+    //Intensive Add some sort of preventor for this function
     private void GetMovingPlatformVelocity()
     {
         if (movingPlatformEnabled == false) return;
+        if (movingPlatformCheckFoot == false && movingPlatformCheckHand == false) { platformVelocity = Vector2.zero; return; }
 
-        //Get the velocity of the platform;
+        platformVelocity = movingCollider.GetComponent<Rigidbody2D>().velocity;
     }
 
     private void SetHorizontalVelocity()
     {
         if (isControllableX == false) return;
 
-        if (runEnabled == true) { horizontalVelocityToSet = inputX * moveSpeed; }
-        else { horizontalVelocityToSet = 0; }
+        if (runEnabled == true) { horizontalVelocityToSet = inputX * moveSpeed + platformVelocity.x; }
+        else { horizontalVelocityToSet = platformVelocity.x; }
 
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
@@ -451,7 +463,7 @@ public class PlayerController : MonoBehaviour
     {
         if (CurrentAnimationState == AnimationState.IDLE)
         {
-            if (groundCheckRealtime)
+            if (groundCheckRealtime || movingPlatformCheckFoot)
             {
                 if (inputX != 0)
                 {
@@ -465,7 +477,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (CurrentAnimationState == AnimationState.RUN)
         {
-            if (groundCheckRealtime)
+            if (groundCheckRealtime || movingPlatformCheckFoot)
             {
                 if (inputX == 0)
                 {
@@ -481,7 +493,7 @@ public class PlayerController : MonoBehaviour
         else if (CurrentAnimationState == AnimationState.JUMP_GOINGUP)
         {
             //If falling on the ground then set the state to idle
-            if (groundCheckRealtime == true && oldGroundCheckRealtime == false) { CurrentAnimationState = AnimationState.IDLE; return; }
+            if ((groundCheckRealtime == true || movingPlatformCheckFoot) && oldGroundCheckRealtime == false) { CurrentAnimationState = AnimationState.IDLE; return; }
 
             if (thisVelocity.y < 0)
             {
@@ -491,7 +503,7 @@ public class PlayerController : MonoBehaviour
         else if (CurrentAnimationState == AnimationState.JUMP_GOINGDOWN)
         {
             //If falling on the ground then set the state to idle
-            if (groundCheckRealtime == true && oldGroundCheckRealtime == false)
+            if ((groundCheckRealtime == true || movingPlatformCheckFoot) && oldGroundCheckRealtime == false)
             {
                 CurrentAnimationState = AnimationState.IDLE;
             }
@@ -507,7 +519,7 @@ public class PlayerController : MonoBehaviour
                 }
                 else
                 {
-                    if (groundCheckRealtime == false) { CurrentAnimationState = AnimationState.JUMP_GOINGUP; }
+                    if (groundCheckRealtime == false && movingPlatformCheckFoot == false) { CurrentAnimationState = AnimationState.JUMP_GOINGUP; }
                     else CurrentAnimationState = AnimationState.IDLE;
                 }
             }
@@ -540,7 +552,7 @@ public class PlayerController : MonoBehaviour
             }
             else
             {
-                if (groundCheck)
+                if (groundCheck || movingPlatformCheckFoot)
                 {
                     ApplyJumpForceAndSetState(false, Vector2.up);
                     jumpsLeft -= 1;
@@ -655,6 +667,10 @@ public class PlayerController : MonoBehaviour
             {
                 thisBody.drag = landDrag;
             }
+            else if (movingPlatformCheckFoot)
+            {
+                thisBody.drag = 0;
+            }
             else
             {
                 thisBody.drag = airDrag;
@@ -663,6 +679,13 @@ public class PlayerController : MonoBehaviour
         else if (CurrentMovementState == MovementState.DASH)
         {
             thisBody.drag = dashDrag;
+        }
+        else if (CurrentMovementState == MovementState.GRAB)
+        {
+            if (movingPlatformCheckHand)
+            {
+                thisBody.drag = 0;
+            }
         }
     }
 
@@ -677,7 +700,7 @@ public class PlayerController : MonoBehaviour
     {
         if (CurrentMovementState == MovementState.DASH) return;
 
-        if (groundCheckRealtime == true)
+        if (groundCheckRealtime == true || movingPlatformCheckFoot)
         {
             canDash = true;
             dashesLeft = numberOfDashes;
