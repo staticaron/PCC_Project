@@ -4917,7 +4917,7 @@ MonoBehaviour:
   jumpEnabled: 1
   dashEnabled: 1
   grabEnabled: 1
-  movingPlatformEnabled: 1
+  movingPlatformEnabled: 0
   moveSpeed: 10
   groundCheck: 0
   groundCheckRealtime: 0
@@ -4932,9 +4932,6 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 1024
-  movingPlatformMask:
-    serializedVersion: 2
-    m_Bits: 2048
   footVisualization: 1
   hand: {fileID: 4327160911034168962}
   shoulder: {fileID: 4327160911376183348}
@@ -4973,6 +4970,11 @@ MonoBehaviour:
   climbJumpTime: 0.3
   canGrab: 1
   tempGrabJumpDirection: {x: 1, y: 1}
+  movablePlatformMask:
+    serializedVersion: 2
+    m_Bits: 2048
+  platformVelocity: {x: 0, y: 0}
+  movingCollider: {fileID: 0}
 --- !u!212 &4327160912582216261
 SpriteRenderer:
   m_ObjectHideFlags: 0

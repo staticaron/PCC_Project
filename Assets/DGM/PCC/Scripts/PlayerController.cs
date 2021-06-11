@@ -197,7 +197,7 @@ public class PlayerController : MonoBehaviour
 
     [Header("Movable Platform Properties")]
     [SerializeField] private LayerMask movablePlatformMask;
-    private Vector2 platformVelocity;
+    [SerializeField] private Vector2 platformVelocity;
     [SerializeField] Collider2D movingCollider;
 
     /*Colliders, box Collider is the normal collider active all the time except while dashing
@@ -276,13 +276,13 @@ public class PlayerController : MonoBehaviour
             movingPlatformCheckFoot = (bool)movingPlatformFoot;
             movingPlatformCheckHand = (bool)movingPlatformHand;
 
-            if (movingPlatformCheckFoot == true)
+            if (movingPlatformCheckHand == true)
             {
-                this.movingCollider = movingPlatformFoot.collider;
+                this.movingCollider = movingPlatformHand.collider;
             }
             else
             {
-                this.movingCollider = movingPlatformHand.collider;
+                this.movingCollider = movingPlatformFoot.collider;
                 //Automatically handles the case of no colliders.
             }
         }
@@ -414,10 +414,19 @@ public class PlayerController : MonoBehaviour
 
     private void SetHorizontalVelocity()
     {
-        if (isControllableX == false) return;
-
-        if (runEnabled == true) { horizontalVelocityToSet = inputX * moveSpeed + platformVelocity.x; }
-        else { horizontalVelocityToSet = platformVelocity.x; }
+        if (isControllableX == false)
+        {
+            if (CurrentMovementState == MovementState.DASH) return;
+            horizontalVelocityToSet = platformVelocity.x;
+        }
+        else
+        {
+            if (runEnabled == true)
+            {
+                //Combine input with platform velocity
+                horizontalVelocityToSet = inputX * moveSpeed + platformVelocity.x;
+            }
+        }
 
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
@@ -628,13 +637,17 @@ public class PlayerController : MonoBehaviour
     //Apply different gravity values in different phases of the jump to remove floatiness
     private void RemoveFloatiness()
     {
-        if (thisBody.velocity.y <= 0)
+        if (thisBody.velocity.y < 0)
         {
             thisBody.gravityScale = fallGravityModifier * overallGravityModifier;
         }
         else if (thisBody.velocity.y > 0)
         {
             thisBody.gravityScale = jumpGravityModifier * overallGravityModifier;
+        }
+        else
+        {
+            thisBody.gravityScale = 1;
         }
     }
 
