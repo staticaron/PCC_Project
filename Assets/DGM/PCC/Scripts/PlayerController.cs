@@ -12,6 +12,8 @@ public class PlayerController : MonoBehaviour
     private PlayerMovementAction playerMovementActionMap;
     private Rigidbody2D thisBody;
 
+    #region States
+
     [Header("States--------------------------------------------------------------------------------")]
     [SerializeField] private MovementState currentMovementState = MovementState.SIMPLE;
     public MovementState CurrentMovementState
@@ -67,6 +69,8 @@ public class PlayerController : MonoBehaviour
             _currentAnimationState = value;
         }
     }
+
+    #endregion
 
     #region DataItems
     //Delegates and Events
@@ -269,10 +273,12 @@ public class PlayerController : MonoBehaviour
         handCheckRealtime = Physics2D.Raycast(hand.position, transform.right, handLength, grabMask);
         shoulderCheckRealtime = Physics2D.Raycast(shoulder.position, transform.right, shoulderLength, grabMask);
 
+        //Do checks for moving platforms iff moving platform checks are enabled
         if (movingPlatformEnabled)
         {
             var movingPlatformHand = Physics2D.Raycast(hand.position, transform.right, handLength, movablePlatformMask);
             var movingPlatformFoot = Physics2D.Raycast(foot.position, -transform.up, footLength, movablePlatformMask);
+
             movingPlatformCheckFoot = (bool)movingPlatformFoot;
             movingPlatformCheckHand = (bool)movingPlatformHand;
 
@@ -283,7 +289,6 @@ public class PlayerController : MonoBehaviour
             else
             {
                 this.movingCollider = movingPlatformFoot.collider;
-                //Automatically handles the case of no colliders.
             }
         }
 
@@ -301,8 +306,8 @@ public class PlayerController : MonoBehaviour
             jumpsLeft = numberOfJumps;
         }
 
-        //Get the direction in which force will be applied in case dash is initialised
-        GetDashDirection();
+        //Get the direction in which force will be applied in case dash is initialized
+        SetDashDirection();
 
         //Maintain the number of dashes
         SetDash();
@@ -314,7 +319,7 @@ public class PlayerController : MonoBehaviour
         else CurrentGrabState = GrabState.NONE;
     }
 
-    private void GetDashDirection()
+    private void SetDashDirection()
     {
         //Normal Dash Vector is equal to the input vector
         dashVector = new Vector2(inputX, inputY).normalized * dashForce;
@@ -403,7 +408,7 @@ public class PlayerController : MonoBehaviour
         inputY = playerMovementActionMap.General.VerticalMovement.ReadValue<float>();
     }
 
-    //Intensive Add some sort of preventor for this function
+    //*Intensive Add some sort of preventor for this fucntion
     private void GetMovingPlatformVelocity()
     {
         if (movingPlatformEnabled == false) return;
@@ -412,6 +417,7 @@ public class PlayerController : MonoBehaviour
         platformVelocity = movingCollider.GetComponent<Rigidbody2D>().velocity;
     }
 
+    //Sets the horizontal velocity according to the input
     private void SetHorizontalVelocity()
     {
         if (isControllableX == false)
@@ -431,6 +437,7 @@ public class PlayerController : MonoBehaviour
         thisBody.velocity = new Vector2(horizontalVelocityToSet, thisBody.velocity.y);
     }
 
+    //Sets the vertical velocity according to the input
     private void SetVerticalVelocity()
     {
         if (isControllableY == false) return;
@@ -447,9 +454,10 @@ public class PlayerController : MonoBehaviour
         else { thisBody.velocity = new Vector2(thisBody.velocity.x, vertVel); }
     }
 
+    //Flipping controlled by input and current movement state
     private void Rotate()
     {
-        //If in simple state, set the rotation according to the input else if in dash state set the rotation according to the movement direction
+        //If in simple stat or jump state, set the rotation according to the input else if in dash state set the rotation according to the movement direction
         if (CurrentMovementState == MovementState.SIMPLE || CurrentMovementState == MovementState.JUMP)
         {
             if (this.inputX > 0)
@@ -468,6 +476,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Stuff releted to action events
     private void HandleAnimationEvents()
     {
         if (CurrentAnimationState == AnimationState.IDLE)
@@ -491,7 +500,6 @@ public class PlayerController : MonoBehaviour
                 if (inputX == 0)
                 {
                     CurrentAnimationState = AnimationState.IDLE;
-
                 }
             }
             else
@@ -535,6 +543,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Changes the current animation state and calls the appropriate events
     private void ChangeState(AnimationState stateToSet)
     {
         if (stateToSet == AnimationState.IDLE) { if (EMovement != null) EMovement(false); }
@@ -545,6 +554,7 @@ public class PlayerController : MonoBehaviour
         else if (stateToSet == AnimationState.GRAB) { if (EGrabbed != null) EGrabbed(true); }
     }
 
+    //Jump Logic
     private void Jump()
     {
         if (jumpEnabled == false) return;
@@ -612,6 +622,7 @@ public class PlayerController : MonoBehaviour
     }
 
     //Wait for the climb jump to complete and allow change in state
+    //Here time is the approximate value taken for the jump to complete, must be set through trial and error
     private IEnumerator<WaitForSeconds> WaitForJump(float time)
     {
         /*Sets the grab state to climb jump and then stops the change in state for
@@ -625,6 +636,7 @@ public class PlayerController : MonoBehaviour
         if (isGrabbing) CurrentAnimationState = AnimationState.GRAB;    //Dont Set the state to grab state if climb jump doesnt leads to grabbing
     }
 
+    //Cancels the ongoing jump
     private void JumpCancel()
     {
         if (fixedJumpHeight == true) return;
@@ -651,6 +663,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Checks for the ground contact and applies coyote time
     private void GroundCheck()
     {
         if (groundCheckRealtime == false && groundCheck == true && coyoteEnabled == false)
@@ -672,18 +685,22 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    //Applies different drag values according to the current movement state
     private void ApplyDrag()
     {
         if (CurrentMovementState == MovementState.SIMPLE || CurrentMovementState == MovementState.JUMP)
         {
+            //If on ground
             if (groundCheckRealtime == true)
             {
                 thisBody.drag = landDrag;
             }
+            //If on moving platform
             else if (movingPlatformCheckFoot)
             {
                 thisBody.drag = 0;
             }
+            //If in air
             else
             {
                 thisBody.drag = airDrag;
@@ -713,13 +730,14 @@ public class PlayerController : MonoBehaviour
     {
         if (CurrentMovementState == MovementState.DASH) return;
 
-        if (groundCheckRealtime == true || movingPlatformCheckFoot)
+        if (groundCheckRealtime || movingPlatformCheckFoot)
         {
             canDash = true;
             dashesLeft = numberOfDashes;
         }
     }
 
+    //Dash Logic
     private void Dash()
     {
         if (dashEnabled == false) return;
@@ -797,7 +815,7 @@ public class PlayerController : MonoBehaviour
 
     }
 
-    //Pauses the screen for a moment for dash 
+    //Pauses the screen for a moment for dash : Totally for game feel :|
     private IEnumerator<WaitForSecondsRealtime> MicroscopicPause(float time)
     {
         var originalTimeScale = Time.timeScale;
@@ -815,6 +833,7 @@ public class PlayerController : MonoBehaviour
         else { grabInput = false; }
     }
 
+    //Grab Logic
     private void ApplyGrab()
     {
         if (handCheckRealtime == false && oldHandCheckRealtime == true)
