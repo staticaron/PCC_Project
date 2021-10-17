@@ -383,18 +383,6 @@ public class PlayerController : MonoBehaviour
         inputY = playerMovementActionMap.General.VerticalMovement.ReadValue<float>();
     }
 
-<<<<<<< HEAD
-=======
-    //*Intensive Add some sort of preventor for this fucntion
-    private void GetMovingPlatformVelocity()
-    {
-        if (movingPlatformEnabled == false) return;
-        if (movingPlatformCheckFoot == false && movingPlatformCheckHand == false) { platformVelocity = Vector2.zero; return; }
-
-        platformVelocity = movingCollider.GetComponent<Rigidbody2D>().velocity;
-    }
-
->>>>>>> 127a9e8... Basic Tweaking
     //Sets the horizontal velocity according to the input
     private void SetHorizontalVelocity()
     {
