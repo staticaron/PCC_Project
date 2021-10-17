@@ -100,6 +100,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool jumpEnabled;
     [SerializeField] private bool dashEnabled;
     [SerializeField] private bool grabEnabled;
+    [Tooltip("Enable if interaction with moving platforms is needed")]
+    [SerializeField] private bool movingPlatformEnabled;
 
     //General Properties
     [Header("General Properties------------------------------------------------------------------------------")]
@@ -118,6 +120,8 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool oldHandCheckRealtime;
     [SerializeField] private bool shoulderCheckRealtime;
     [SerializeField] private bool ledgeNearby;
+    [SerializeField] private bool movingPlatformCheckFoot;
+    [SerializeField] private bool movingPlatformCheckHand;
 
     [Header("Foot Properties------------------------------------------------------------------------------")]
     [SerializeField] private Transform foot;
@@ -238,6 +242,8 @@ public class PlayerController : MonoBehaviour
 
         HandleAnimationEvents();
 
+        GetMovingPlatformVelocity();
+
         GetInput();
 
         Rotate();
@@ -266,6 +272,25 @@ public class PlayerController : MonoBehaviour
         groundCheckRealtime = Physics2D.Raycast(foot.position, -transform.up, footLength, groundMask);
         handCheckRealtime = Physics2D.Raycast(hand.position, transform.right, handLength, grabMask);
         shoulderCheckRealtime = Physics2D.Raycast(shoulder.position, transform.right, shoulderLength, grabMask);
+
+        //Do checks for moving platforms iff moving platform checks are enabled
+        if (movingPlatformEnabled)
+        {
+            var movingPlatformHand = Physics2D.Raycast(hand.position, transform.right, handLength, movablePlatformMask);
+            var movingPlatformFoot = Physics2D.Raycast(foot.position, -transform.up, footLength, movablePlatformMask);
+
+            movingPlatformCheckFoot = (bool)movingPlatformFoot;
+            movingPlatformCheckHand = (bool)movingPlatformHand;
+
+            if (movingPlatformCheckHand == true)
+            {
+                this.movingCollider = movingPlatformHand.collider;
+            }
+            else
+            {
+                this.movingCollider = movingPlatformFoot.collider;
+            }
+        }
 
         thisVelocity = thisBody.velocity;
         thisRotation = transform.rotation.eulerAngles;
@@ -381,6 +406,15 @@ public class PlayerController : MonoBehaviour
     {
         inputX = playerMovementActionMap.General.Movement.ReadValue<float>();
         inputY = playerMovementActionMap.General.VerticalMovement.ReadValue<float>();
+    }
+
+    //*Intensive Add some sort of preventor for this fucntion
+    private void GetMovingPlatformVelocity()
+    {
+        if (movingPlatformEnabled == false) return;
+        if (movingPlatformCheckFoot == false && movingPlatformCheckHand == false) { platformVelocity = Vector2.zero; return; }
+
+        platformVelocity = movingCollider.GetComponent<Rigidbody2D>().velocity;
     }
 
     //Sets the horizontal velocity according to the input

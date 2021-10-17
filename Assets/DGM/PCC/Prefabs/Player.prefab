@@ -4980,7 +4980,7 @@ MonoBehaviour:
   jumpEnabled: 1
   dashEnabled: 1
   grabEnabled: 1
-  movingPlatformEnabled: 0
+  movingPlatformEnabled: 1
   moveSpeed: 10
   groundCheck: 0
   groundCheckRealtime: 0
