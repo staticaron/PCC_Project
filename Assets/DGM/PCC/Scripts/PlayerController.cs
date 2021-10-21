@@ -408,7 +408,7 @@ public class PlayerController : MonoBehaviour
         inputY = playerMovementActionMap.General.VerticalMovement.ReadValue<float>();
     }
 
-    //*Intensive Add some sort of preventor for this fucntion
+    //Intensive
     private void GetMovingPlatformVelocity()
     {
         if (movingPlatformEnabled == false) return;

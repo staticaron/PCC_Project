@@ -5012,8 +5012,8 @@ MonoBehaviour:
   grabDrag: 8
   coyoteTime: 0.2
   fixedJumpHeight: 0
-  canJumpInMidAir: 0
-  numberOfJumps: 1
+  canJumpInMidAir: 1
+  numberOfJumps: 3
   jumpForce: 20
   jumpForceAway: 40
   jumpCancelModifier: 0.5
