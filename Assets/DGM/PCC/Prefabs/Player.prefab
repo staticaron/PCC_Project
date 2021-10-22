@@ -4969,7 +4969,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e28e8b9011e2c77428d22fa1bb4b02b1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  currentMovementState: 0
+  _currentMovementState: 0
   _currentGrabState: 0
   _currentAnimationState: 0
   inputX: 0
@@ -5013,7 +5013,7 @@ MonoBehaviour:
   coyoteTime: 0.2
   fixedJumpHeight: 0
   canJumpInMidAir: 1
-  numberOfJumps: 3
+  numberOfJumps: 2
   jumpForce: 20
   jumpForceAway: 40
   jumpCancelModifier: 0.5

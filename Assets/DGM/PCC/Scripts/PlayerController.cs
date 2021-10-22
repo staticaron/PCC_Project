@@ -15,10 +15,10 @@ public class PlayerController : MonoBehaviour
     #region States
 
     [Header("States--------------------------------------------------------------------------------")]
-    [SerializeField] private MovementState currentMovementState = MovementState.SIMPLE;
+    [SerializeField] private MovementState _currentMovementState = MovementState.SIMPLE;
     public MovementState CurrentMovementState
     {
-        get { return currentMovementState; }
+        get { return _currentMovementState; }
         set
         {
             if (isChangeInMovementStateEnabled == false) return;
@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
                     break;
             }
 
-            currentMovementState = value;
+            _currentMovementState = value;
         }
     }
 
@@ -73,8 +73,8 @@ public class PlayerController : MonoBehaviour
     #endregion
 
     #region DataItems
-    //Delegates and Events
 
+    //Delegates and Events
     public delegate void Dashed(bool started);
     public static event Dashed EDashed;
 
@@ -88,7 +88,6 @@ public class PlayerController : MonoBehaviour
     public static event Movement EMovement;
 
     //The keyboard inputs for the specified axis
-    [Header("Input Values")]
     [HideInInspector] public float inputX;
     [HideInInspector] public float inputY;
     [HideInInspector] private Vector2 thisRotation;
@@ -104,7 +103,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private bool movingPlatformEnabled;
 
     //General Properties
-    [Header("General Properties------------------------------------------------------------------------------")]
+    [Header("General Properties-------------------------------------------------------------------")]
     [SerializeField] private float moveSpeed = 10;
     private bool isControllableX = true;
     private bool isControllableY = false;
@@ -113,21 +112,21 @@ public class PlayerController : MonoBehaviour
     private bool isChangeInMovementStateEnabled = true;
 
     [Header("Checkers (Only for reference, Can't be edited)------------------------------------------------------------------------------")]
-    [SerializeField] private bool groundCheck; //GroundCheck = GroundCheckRealtime + coyotiness
-    [SerializeField] public bool groundCheckRealtime;
-    [HideInInspector] private bool oldGroundCheckRealtime;
-    [SerializeField] private bool handCheckRealtime;
-    [SerializeField] private bool oldHandCheckRealtime;
-    [SerializeField] private bool shoulderCheckRealtime;
+    [SerializeField] private bool groundCheck;              //Combined effect of realtime goundcheck and coyote time
+    [SerializeField] public bool groundCheckRealtime;       //Realtime GroundCheck data of the current frame
+    [HideInInspector] private bool oldGroundCheckRealtime;  //Realtime GroundCheck data of the previous frame
+    [SerializeField] private bool handCheckRealtime;        //Handcheck data of the current frame
+    [SerializeField] private bool oldHandCheckRealtime;     //Handcheck data of the previous frame
+    [SerializeField] private bool shoulderCheckRealtime;    //Shouldercheck data of the current frame
     [SerializeField] private bool ledgeNearby;
     [SerializeField] private bool movingPlatformCheckFoot;
     [SerializeField] private bool movingPlatformCheckHand;
 
     [Header("Foot Properties------------------------------------------------------------------------------")]
     [SerializeField] private Transform foot;
-    [SerializeField] private float footLength;
+    [SerializeField] private float footLength = 0.5f;
     [SerializeField] private LayerMask groundMask;
-    [SerializeField] private bool footVisualization;
+    [SerializeField] private bool footVisualization = true;
 
     [Header("Hand Properties------------------------------------------------------------------------------")]
     [SerializeField] private Transform hand;
@@ -136,13 +135,13 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float shoulderLength = 0.25f;
     [Tooltip("Objects in this layer can be grabbed")]
     [SerializeField] private LayerMask grabMask;
-    [SerializeField] private bool handVisualization;
+    [SerializeField] private bool handVisualization = true;
 
     [Header("Gravity Properties-------------------------------------------------------------------------")]
     [SerializeField] private float fallGravityModifier = 10;
     [SerializeField] private float jumpGravityModifier = 4;
     private float overallGravityModifier = 1;
-    [SerializeField] private float airDrag = 1, landDrag = 0, dashDrag = 5, grabDrag = 8;
+    [SerializeField] private float airDrag = 1, landDrag = 0, dashDrag = 5, grabDrag = 8; //Drags applied when performing respective actions
 
     [Header("Coyote Values------------------------------------------------------------------------------")]
     [SerializeField] private float coyoteTime = 0.2f;
@@ -152,6 +151,7 @@ public class PlayerController : MonoBehaviour
     [Header("Jump Properties------------------------------------------------------------------------------")]
     [Tooltip("If true, the jump will be of fixed height, else will depend on the duration of the key press")]
     [SerializeField] private bool fixedJumpHeight;
+    [Tooltip("If true, jump only depends on whether jumps are left or not, else jump can only be made while standing on ground")]
     [SerializeField] private bool canJumpInMidAir;
     [SerializeField] private int numberOfJumps = 1;
     private int jumpsLeft;
@@ -578,7 +578,7 @@ public class PlayerController : MonoBehaviour
                 }
             }
         }
-        else if (currentMovementState == MovementState.GRAB)
+        else if (_currentMovementState == MovementState.GRAB)
         {
             ApplyJumpForceAndSetState(true, grabJumpDirection);
         }
