@@ -3,7 +3,7 @@
     The Package Code is available in the Folder : Assets/DGM/Character Controller/Scripts/
 
 <h2 align="center">
-    <img src="https://user-images.githubusercontent.com/66104268/146179296-b62dd2f0-4660-4f10-9c24-bfb61eb37be7.png" style = "width : 30%; height:auto" />
+    <img src="https://user-images.githubusercontent.com/66104268/146179296-b62dd2f0-4660-4f10-9c24-bfb61eb37be7.png" style = "width : 40%; height:auto" />
 </h2>
 <h1 align="center">PCC : Platformer Character Controller</h1>
 
