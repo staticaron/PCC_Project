@@ -51,11 +51,11 @@ PCC support various actions. All of them are inspired by Celeste.
 * Coyote Time
 * Microscopic Dash Pause
 
-<div style="width:100%; display:flex; align:center; justify-content: center; text-align: center">
+<h1 style="width:100%; display:flex; align:center; justify-content: center; text-align: center">
       <img src="https://img.itch.zone/aW1hZ2UvMTEwMzU4NC83MjI5OTIyLmdpZg==/250x600/Cdraw8.gif" style="height:auto; width:32%; margin-left: auto; margin-right: auto">
       <img src="https://img.itch.zone/aW1hZ2UvMTEwMzU4NC83MjI5OTU4LmdpZg==/250x600/%2Fb8NNj.gif" style="height:auto; width:32%; margin-left: auto; margin-right: auto">
       <img src="https://img.itch.zone/aW1hZ2UvMTEwMzU4NC83MjI5OTYyLmdpZg==/250x600/28xAOR.gif" style="height:auto; width:32%; margin-left: auto; margin-right: auto">
-</div>
+</h1>
     
 ### Note 
   * PCC only works with The New Input System.
