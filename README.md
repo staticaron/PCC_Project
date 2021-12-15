@@ -2,6 +2,11 @@
 
     The Package Code is available in the Folder : Assets/DGM/Character Controller/Scripts/
 
+<h2 align="center">
+    <img src="https://user-images.githubusercontent.com/66104268/146179296-b62dd2f0-4660-4f10-9c24-bfb61eb37be7.png" style = "width : 30%; height:auto" />
+</h2>
+<h1 align="center">PCC : Platformer Character Controller</h1>
+
 ***Platformer Character Controller (PCC)*** is a dynamic Character Controller for platformer games heavily inspired by Celeste.
 
 ## **Features :**
@@ -46,6 +51,12 @@ PCC support various actions. All of them are inspired by Celeste.
 * Coyote Time
 * Microscopic Dash Pause
 
+<div style="width:100%; display:flex; align:center; justify-content: center; text-align: center">
+      <img src="https://img.itch.zone/aW1hZ2UvMTEwMzU4NC83MjI5OTIyLmdpZg==/250x600/Cdraw8.gif" style="height:auto; width:32%; margin-left: auto; margin-right: auto">
+      <img src="https://img.itch.zone/aW1hZ2UvMTEwMzU4NC83MjI5OTU4LmdpZg==/250x600/%2Fb8NNj.gif" style="height:auto; width:32%; margin-left: auto; margin-right: auto">
+      <img src="https://img.itch.zone/aW1hZ2UvMTEwMzU4NC83MjI5OTYyLmdpZg==/250x600/28xAOR.gif" style="height:auto; width:32%; margin-left: auto; margin-right: auto">
+</div>
+    
 ### Note 
   * PCC only works with The New Input System.
   * There is no support for moving platfroms. (WIP)
